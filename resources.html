@@ -1789,13 +1789,137 @@ function renderFplStrip() {
   `;
 }
 
+// ---------- Results rendering ----------
+const CATEGORIES = [
+  { id: 'utility',     label: 'Utility & Phone',      icon: '⚡' },
+  { id: 'housing',     label: 'Housing',              icon: '🏠' },
+  { id: 'pharma',      label: 'Rx / Pharmacy',        icon: '💊' },
+  { id: 'insurance',   label: 'Health Insurance',     icon: '🩺' },
+  { id: 'food',        label: 'Food & Nutrition',     icon: '🥬' },
+  { id: 'legal',       label: 'Legal Aid',            icon: '⚖️' },
+  { id: 'income',      label: 'Income & Disability',  icon: '💵' },
+  { id: 'grants',      label: 'Grants & Emergency',   icon: '🆘' },
+  { id: 'veterans',    label: 'Veterans',             icon: '🎖️' },
+  { id: 'immigration', label: 'Immigration',          icon: '🌎' },
+  { id: 'transport',   label: 'Transportation',       icon: '🚗' },
+];
+const CAT_BY_ID = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+let activeCategoryFilters = new Set();
+let showNo = false;
+
+function renderFilterChips(buckets) {
+  const bar = document.getElementById('filterChips');
+  const all = [...buckets.yes, ...buckets.maybe, ...(showNo ? buckets.no : [])];
+  const counts = {};
+  all.forEach(m => { counts[m.resource.category] = (counts[m.resource.category] || 0) + 1; });
+  bar.innerHTML = CATEGORIES.map(cat => {
+    const n = counts[cat.id] || 0;
+    if (n === 0) return '';
+    const active = activeCategoryFilters.has(cat.id) ? 'active' : '';
+    return `<span class="chip ${active}" data-cat="${cat.id}">${cat.icon} ${cat.label}<span class="count">${n}</span></span>`;
+  }).join('');
+  bar.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const c = chip.dataset.cat;
+      if (activeCategoryFilters.has(c)) activeCategoryFilters.delete(c);
+      else activeCategoryFilters.add(c);
+      renderResults();
+    });
+  });
+}
+
+function toggleCard(id) {
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if (card) card.classList.toggle('open');
+}
+
+function renderCard(match) {
+  const r = match.resource;
+  const v = match.verdict || 'yes';
+  const verdictLabel = { yes: 'Likely eligible', maybe: 'Possibly eligible', no: 'Not eligible' }[v];
+  const cat = CAT_BY_ID[r.category] || { icon: '', label: r.category };
+  const reasonsHtml = match.reasons && match.reasons.length
+    ? `<div class="card-reasons">${match.reasons.join(' · ')}</div>` : '';
+  const scope = r.scope === 'federal' ? 'Federal' : r.scope === 'state' ? 'State' : r.scope === 'local' ? 'Local' : '';
+  const statesText = r.states === 'ALL' ? 'All US' : (Array.isArray(r.states) ? r.states.join(', ') : '');
+  const contactRows = [];
+  if (r.phone) contactRows.push(`<div class="contact-row"><span class="contact-label">Phone</span><a href="tel:${r.phone.replace(/[^0-9+]/g,'')}">${r.phone}</a></div>`);
+  if (r.web) contactRows.push(`<div class="contact-row"><span class="contact-label">Website</span><a href="${r.web.startsWith('http') ? r.web : 'https://' + r.web}" target="_blank" rel="noopener">${r.web.replace(/^https?:\/\//,'')}</a></div>`);
+  const contactHtml = contactRows.length ? `<div class="card-contact">${contactRows.join('')}</div>` : '';
+  return `
+    <div class="card ${v}" data-id="${r.id}">
+      <div class="card-header" onclick="toggleCard('${r.id}')">
+        <div style="min-width:0;flex:1;">
+          <div class="card-title-row">
+            <span class="card-title">${cat.icon} ${r.name}</span>
+            <span class="card-category">${scope}${statesText ? ' · ' + statesText : ''}</span>
+          </div>
+          ${reasonsHtml}
+        </div>
+        <span class="card-verdict ${v}">${verdictLabel}</span>
+        <span class="expand-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-row"><div class="l">What it is</div><div class="v">${r.desc}</div></div>
+        <div class="card-row"><div class="l">Eligibility</div><div class="v">${r.eligibility}</div></div>
+        <div class="card-row"><div class="l">How to apply</div><div class="v">${r.apply}</div></div>
+        ${contactHtml}
+      </div>
+    </div>`;
+}
+
+function renderGroup(title, klass, matches) {
+  if (!matches.length) return '';
+  const cards = matches.map(m => renderCard({ ...m, verdict: klass })).join('');
+  return `<div class="group-heading ${klass}"><span>${title}</span><span class="pill">${matches.length}</span></div>${cards}`;
+}
+
+function applyFilters(arr) {
+  if (!activeCategoryFilters.size) return arr;
+  return arr.filter(m => activeCategoryFilters.has(m.resource.category));
+}
+
+function renderResults() {
+  const p = readProfile();
+  const buckets = evaluateAll(p);
+  // Sort within each bucket alphabetically by category then name
+  const sortFn = (a, b) => (a.resource.category + a.resource.name).localeCompare(b.resource.category + b.resource.name);
+  buckets.yes.sort(sortFn); buckets.maybe.sort(sortFn); buckets.no.sort(sortFn);
+
+  renderFilterChips(buckets);
+
+  const yes = applyFilters(buckets.yes);
+  const maybe = applyFilters(buckets.maybe);
+  const no = applyFilters(buckets.no);
+
+  const bar = document.getElementById('resultsBar');
+  const totalShown = yes.length + maybe.length + (showNo ? no.length : 0);
+  bar.innerHTML = `
+    <span>Showing <strong>${totalShown}</strong> of ${RESOURCES.length} programs
+      ${activeCategoryFilters.size ? ' · ' + activeCategoryFilters.size + ' filter(s) active' : ''}</span>
+    <span class="toggle-no" id="toggleNo">${showNo ? 'Hide' : 'Show'} not-eligible (${no.length})</span>`;
+  document.getElementById('toggleNo').addEventListener('click', () => { showNo = !showNo; renderResults(); });
+
+  const container = document.getElementById('cardsContainer');
+  if (totalShown === 0) {
+    container.innerHTML = `<div class="empty-state"><h3>No matches to show</h3><p>Clear category filters or add more intake detail above.</p></div>`;
+    return;
+  }
+  container.innerHTML = [
+    renderGroup('Likely eligible', 'yes', yes),
+    renderGroup('Possibly eligible — verify', 'maybe', maybe),
+    showNo ? renderGroup('Not eligible (intake excludes)', 'no', no) : '',
+  ].join('');
+}
+
 // ---------- Wire up listeners ----------
 function onChange() {
   const p = readProfile();
   renderFplHint();
   renderFplStrip();
   renderCountyContacts(p);
-  /* renderResults() added in step 6 */
+  renderResults();
 }
 function resetForm() {
   document.querySelectorAll('#intakePanel input, #intakePanel select').forEach(el => {
