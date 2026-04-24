@@ -549,7 +549,120 @@ body {
 </div>
 
 <script>
-// JS added in next steps.
+// ---------- 2025 HHS Federal Poverty Guidelines (48 contiguous states + DC) ----------
+// 1-person $15,650; each additional $5,500.
+const FPL_BASE = 15650;
+const FPL_ADDL = 5500;
+function fplFor(hhSize) { return FPL_BASE + Math.max(0, hhSize - 1) * FPL_ADDL; }
+function fplPct(income, hhSize) {
+  if (!income || income <= 0 || !hhSize || hhSize < 1) return null;
+  return Math.round((income / fplFor(hhSize)) * 100);
+}
+function incomeAtPct(pct, hhSize) { return Math.round(fplFor(hhSize) * pct / 100); }
+
+// ---------- Counties by state ----------
+const COUNTIES = {
+  PA: ['Adams','Allegheny','Armstrong','Beaver','Bedford','Berks','Blair','Bradford','Bucks','Butler','Cambria','Cameron','Carbon','Centre','Chester','Clarion','Clearfield','Clinton','Columbia','Crawford','Cumberland','Dauphin','Delaware','Elk','Erie','Fayette','Forest','Franklin','Fulton','Greene','Huntingdon','Indiana','Jefferson','Juniata','Lackawanna','Lancaster','Lawrence','Lebanon','Lehigh','Luzerne','Lycoming','McKean','Mercer','Mifflin','Monroe','Montgomery','Montour','Northampton','Northumberland','Perry','Philadelphia','Pike','Potter','Schuylkill','Snyder','Somerset','Sullivan','Susquehanna','Tioga','Union','Venango','Warren','Washington','Wayne','Westmoreland','Wyoming','York'],
+  NJ: ['Atlantic','Bergen','Burlington','Camden','Cape May','Cumberland','Essex','Gloucester','Hudson','Hunterdon','Mercer','Middlesex','Monmouth','Morris','Ocean','Passaic','Salem','Somerset','Sussex','Union','Warren'],
+  MD: ['Allegany','Anne Arundel','Baltimore','Baltimore City','Calvert','Caroline','Carroll','Cecil','Charles','Dorchester','Frederick','Garrett','Harford','Howard','Kent','Montgomery',"Prince George's",'Queen Annes','Somerset',"St. Mary's",'Talbot','Washington','Wicomico','Worcester'],
+  DE: ['Kent','New Castle','Sussex'],
+  VA: ['Accomack','Albemarle','Alexandria','Arlington','Augusta','Bedford','Campbell','Charlottesville','Chesapeake','Chesterfield','Culpeper','Fairfax','Fauquier','Frederick','Fredericksburg','Hampton','Hanover','Harrisonburg','Henrico','James City','Lee','Loudoun','Lynchburg','Manassas','Montgomery','Newport News','Norfolk','Petersburg','Pittsylvania','Portsmouth','Prince William','Pulaski','Richmond City','Roanoke','Rockingham','Russell','Shenandoah','Spotsylvania','Stafford','Suffolk','Tazewell','Virginia Beach','Washington','Williamsburg','Winchester','Wise','Wythe','York'],
+  DC: ['Washington, DC']
+};
+
+// ---------- Patient profile (read from form) ----------
+function readProfile() {
+  const getChecked = id => Array.from(document.querySelectorAll(`#${id} input[type=checkbox]:checked`)).map(i => i.value);
+  const state = document.getElementById('f_state').value || '';
+  const county = document.getElementById('f_county').value || '';
+  const age = parseInt(document.getElementById('f_age').value, 10);
+  const hh = parseInt(document.getElementById('f_hh').value, 10) || 1;
+  const income = parseFloat(document.getElementById('f_income').value);
+  const insurance = new Set(getChecked('f_insurance'));
+  const citizen = document.getElementById('f_citizen').value || '';
+  const incsrc = new Set(getChecked('f_incsrc'));
+  const housing = document.getElementById('f_housing').value || '';
+  const flags = new Set(getChecked('f_flags'));
+  const fpl = fplPct(isFinite(income) ? income : null, hh);
+  return {
+    state, county,
+    age: isFinite(age) ? age : null,
+    hh, income: isFinite(income) ? income : null,
+    fpl, insurance, citizen, incsrc, housing, flags,
+    isSenior: isFinite(age) ? age >= 65 : false,
+    isChild: isFinite(age) ? age < 18 : false,
+    hasMedicare: new Set(getChecked('f_insurance')).has('medicare') || new Set(getChecked('f_insurance')).has('medicare_adv'),
+  };
+}
+
+// ---------- County dropdown population ----------
+function populateCounties() {
+  const st = document.getElementById('f_state').value;
+  const sel = document.getElementById('f_county');
+  sel.innerHTML = '';
+  if (!st || !COUNTIES[st]) {
+    sel.innerHTML = '<option value="">— Select state first —</option>';
+    return;
+  }
+  const first = document.createElement('option');
+  first.value = ''; first.textContent = 'All / unspecified';
+  sel.appendChild(first);
+  COUNTIES[st].forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+// ---------- FPL hint + strip ----------
+function renderFplHint() {
+  const hint = document.getElementById('fplHint');
+  const p = readProfile();
+  if (p.fpl === null) {
+    hint.textContent = 'Enter income to see FPL %.';
+    return;
+  }
+  hint.innerHTML = `<strong>${p.fpl}% FPL</strong> — 100% FPL for household of ${p.hh} is $${fplFor(p.hh).toLocaleString()}/yr`;
+}
+
+function renderFplStrip() {
+  const p = readProfile();
+  const strip = document.getElementById('fplStrip');
+  const fplClass = p.fpl === null ? '' : (p.fpl <= 150 ? 'accent' : (p.fpl <= 300 ? 'warn' : ''));
+  const stateName = ({PA:'Pennsylvania',NJ:'New Jersey',MD:'Maryland',DE:'Delaware',VA:'Virginia',DC:'DC'})[p.state] || '—';
+  strip.innerHTML = `
+    <div class="fpl-stat"><div class="l">State</div><div class="v accent">${p.state || '—'}</div><div class="s">${stateName}${p.county ? ' · ' + p.county : ''}</div></div>
+    <div class="fpl-stat"><div class="l">Household</div><div class="v">${p.hh}</div><div class="s">${p.age !== null ? 'patient age ' + p.age : 'age unspecified'}</div></div>
+    <div class="fpl-stat"><div class="l">Annual income</div><div class="v">${p.income !== null ? '$' + p.income.toLocaleString() : '—'}</div><div class="s">100% FPL = $${fplFor(p.hh).toLocaleString()}</div></div>
+    <div class="fpl-stat"><div class="l">Income as % FPL</div><div class="v ${fplClass}">${p.fpl !== null ? p.fpl + '%' : '—'}</div><div class="s">${p.fpl === null ? 'enter income' : (p.fpl <= 138 ? 'Medicaid range (expansion states)' : p.fpl <= 200 ? 'many low-income programs' : p.fpl <= 400 ? 'ACA subsidy range' : 'above most program thresholds')}</div></div>
+  `;
+}
+
+// ---------- Wire up listeners ----------
+function onChange() { renderFplHint(); renderFplStrip(); /* render() added later */ }
+function resetForm() {
+  document.querySelectorAll('#intakePanel input, #intakePanel select').forEach(el => {
+    if (el.type === 'checkbox') el.checked = false;
+    else if (el.id === 'f_hh') el.value = '1';
+    else el.value = '';
+  });
+  populateCounties();
+  onChange();
+}
+
+document.getElementById('f_state').addEventListener('change', () => { populateCounties(); onChange(); });
+['f_county','f_age','f_hh','f_income','f_citizen','f_housing'].forEach(id => {
+  document.getElementById(id).addEventListener('input', onChange);
+  document.getElementById(id).addEventListener('change', onChange);
+});
+['f_insurance','f_incsrc','f_flags'].forEach(id => {
+  document.getElementById(id).addEventListener('change', onChange);
+});
+
+// Initial render
+populateCounties();
+renderFplHint();
+renderFplStrip();
 </script>
 </body>
 </html>
