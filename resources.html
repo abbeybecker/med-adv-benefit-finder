@@ -544,15 +544,15 @@ body {
 
 <div class="footer">
   For bedside use by clinicians, social workers, and case managers. Eligibility shown is a first-pass screen — actual determinations are made by each program.
-  Thresholds use 2025 Federal Poverty Level (HHS). Dial <strong>2-1-1</strong> for local referrals anywhere in the US, or <strong>988</strong> for mental health / suicide crisis.
+  Thresholds use 2026 Federal Poverty Level (HHS, eff. Jan 13, 2026). Dial <strong>2-1-1</strong> for local referrals anywhere in the US, or <strong>988</strong> for mental health / suicide crisis.
   <br>Not legal or financial advice. Verify with program staff before relying on eligibility for care planning.
 </div>
 
 <script>
-// ---------- 2025 HHS Federal Poverty Guidelines (48 contiguous states + DC) ----------
-// 1-person $15,650; each additional $5,500.
-const FPL_BASE = 15650;
-const FPL_ADDL = 5500;
+// ---------- 2026 HHS Federal Poverty Guidelines (48 contiguous states + DC) ----------
+// Effective Jan 13, 2026. 1-person $15,960; each additional $5,680.
+const FPL_BASE = 15960;
+const FPL_ADDL = 5680;
 function fplFor(hhSize) { return FPL_BASE + Math.max(0, hhSize - 1) * FPL_ADDL; }
 function fplPct(income, hhSize) {
   if (!income || income <= 0 || !hhSize || hhSize < 1) return null;
@@ -847,8 +847,8 @@ const RESOURCES = [
     id: 'lis', category: 'pharma', scope: 'federal',
     name: 'Medicare Extra Help / LIS (Low-Income Subsidy)',
     states: 'ALL',
-    desc: 'Reduces or eliminates Part D premiums, deductibles, and copays (capped at ~$4.90 generic / ~$12.15 brand in 2025; $0 for dual eligibles). Now expanded — no partial benefit tier.',
-    eligibility: 'Medicare-eligible; income ≤150% FPL; resources ≤$17,220 individual / $34,360 couple (2025).',
+    desc: 'Reduces or eliminates Part D premiums, deductibles, and copays (copay caps rise slightly with COLA each year; $0 for dual eligibles). Fully expanded — no partial benefit tier.',
+    eligibility: 'Medicare-eligible; income ≤150% FPL (~$23,940 single / $32,460 couple in 2026); resources ≤ CMS annual limit (verify current-year figures).',
     apply: 'Apply via SSA (ssa.gov/extrahelp) or through state Medicaid office — auto-enrolled if on Medicaid, MSP, or SSI.',
     phone: '1-800-772-1213', web: 'https://www.ssa.gov/medicare/part-d-extra-help',
     criteria: { fplMax: 150, insurance: ['medicare','medicare_adv'] }
@@ -890,7 +890,7 @@ const RESOURCES = [
     name: 'NJ PAAD (Pharmaceutical Assistance to the Aged & Disabled)',
     states: ['NJ'],
     desc: 'NJ drug coverage: $5 generic / $7 brand. Works with Part D (enrollees are auto-enrolled in Extra Help application).',
-    eligibility: 'Age 65+ OR disabled receiving SSDI; NJ resident; single income ≤~$52,142 / couple ≤~$59,209 (2024; updates annually).',
+    eligibility: 'Age 65+ OR disabled receiving SSDI; NJ resident; single income ≤$54,943 / couple ≤$62,390 (2026).',
     apply: 'Apply at NJSave.nj.gov (single app for PAAD, Senior Gold, Lifeline, USF, LIHEAP).',
     phone: '1-800-792-9745', web: 'https://www.state.nj.us/humanservices/doas/services/paad/',
     criteria: {},
@@ -899,7 +899,7 @@ const RESOURCES = [
       const ageOk = (p.age !== null && p.age >= 65) || p.incsrc.has('ssdi') || p.flags.has('disabled');
       if (!ageOk) return false;
       if (p.income === null) return 'maybe';
-      const cap = p.hh >= 2 ? 59209 : 52142;
+      const cap = p.hh >= 2 ? 62390 : 54943;
       return p.income <= cap ? 'yes' : false;
     }
   },
@@ -908,7 +908,7 @@ const RESOURCES = [
     name: 'NJ Senior Gold Prescription Discount',
     states: ['NJ'],
     desc: 'NJ tier above PAAD. 50% co-pay share plus $15 after a $2,000 annual out-of-pocket, up to an annual cap.',
-    eligibility: 'Age 65+ OR disabled; NJ resident; income just above PAAD cap (single $52,142–$62,142; couple $59,209–$69,209 — 2024).',
+    eligibility: 'Age 65+ OR disabled; NJ resident; income just above PAAD cap (single $54,943–$64,943; couple $62,390–$70,690 — 2026).',
     apply: 'Apply via NJSave.nj.gov.',
     phone: '1-800-792-9745', web: 'https://www.state.nj.us/humanservices/doas/services/seniorgold/',
     criteria: {},
@@ -917,7 +917,7 @@ const RESOURCES = [
       const ageOk = (p.age !== null && p.age >= 65) || p.incsrc.has('ssdi') || p.flags.has('disabled');
       if (!ageOk) return false;
       if (p.income === null) return 'maybe';
-      const [lo, hi] = p.hh >= 2 ? [59209, 69209] : [52142, 62142];
+      const [lo, hi] = p.hh >= 2 ? [62390, 70690] : [54943, 64943];
       return (p.income > lo && p.income <= hi) ? 'yes' : false;
     }
   },
@@ -979,7 +979,7 @@ const RESOURCES = [
     name: 'ACA Marketplace (Healthcare.gov / State Exchange)',
     states: ['PA','NJ','MD','DE','VA','DC'],
     desc: 'Premium tax credits and cost-sharing reductions for private plans. PA: Pennie. NJ: GetCoveredNJ. MD: Maryland Health Connection. DE/VA: healthcare.gov. DC: DC Health Link.',
-    eligibility: 'Income ≥100% FPL (no upper cliff through 2025 under ARPA/IRA). Not eligible for other affordable coverage (Medicaid/Medicare/job-based).',
+    eligibility: 'Income ≥100% FPL. Enhanced ARPA/IRA premium tax credits (no 400% FPL cliff) expired after 2025 — verify current-year subsidy structure. Not eligible for other affordable coverage (Medicaid/Medicare/job-based).',
     apply: 'Open Enrollment Nov 1–Jan 15 each year; Special Enrollment for qualifying life events and ≤150% FPL.',
     phone: '1-800-318-2596', web: 'https://www.healthcare.gov',
     criteria: { fplMin: 100, insuranceExclude: ['medicare','medicaid','medicare_adv'] }
@@ -989,7 +989,7 @@ const RESOURCES = [
     name: 'Medicare Savings Programs (QMB / SLMB / QI)',
     states: 'ALL',
     desc: 'State Medicaid pays Medicare Part B premium, and for QMB also pays Part A premium + all Medicare deductibles/coinsurance. Auto-enrolls in Extra Help.',
-    eligibility: 'Medicare beneficiary. QMB: ≤100% FPL. SLMB: ≤120% FPL. QI: ≤135% FPL. Asset limits: ~$9,660 individual / $14,470 couple (2025).',
+    eligibility: 'Medicare beneficiary. QMB: ≤100% FPL. SLMB: ≤120% FPL. QI: ≤135% FPL. Asset limits ~$9,660 individual / $14,470 couple (2026; several states waive asset test — DE/DC waive, others check).',
     apply: 'Apply via your state Medicaid office or SSA. Most SHIP counselors can assist.',
     phone: '1-800-MEDICARE', web: 'https://www.medicare.gov/basics/costs/help/medicare-savings-programs',
     criteria: { fplMax: 135, insurance: ['medicare','medicare_adv'] }
@@ -1184,7 +1184,7 @@ const RESOURCES = [
     id: 'ssi', category: 'income', scope: 'federal',
     name: 'SSI — Supplemental Security Income',
     states: 'ALL',
-    desc: 'Monthly cash benefit for people age 65+, blind, or with a disability and very low income/assets. 2025 Federal Benefit Rate: $967/mo individual, $1,450 couple. Automatically Medicaid-eligible in most states.',
+    desc: 'Monthly cash benefit for people age 65+, blind, or with a disability and very low income/assets. 2026 Federal Benefit Rate: $994/mo individual, $1,491 couple. Automatically Medicaid-eligible in most states.',
     eligibility: 'Age 65+ OR disability/blindness; countable resources ≤$2,000 ind / $3,000 couple; income below FBR (varies). US citizen or qualified non-citizen.',
     apply: 'Apply at SSA.gov, by phone, or at local SSA office. Disability determination through DDS.',
     phone: '1-800-772-1213', web: 'https://www.ssa.gov/ssi',
@@ -1242,7 +1242,7 @@ const RESOURCES = [
     name: 'Medicaid HCBS Waivers (Home & Community-Based Services)',
     states: 'ALL',
     desc: 'Medicaid waivers that fund personal care, adult day, respite, home mods, transportation, and other supports to keep people out of facilities. PA: OLTL waivers. NJ: MLTSS. MD: Community First / Community Options. DE: DSAAPD. VA: CCC Plus. DC: EPD Waiver.',
-    eligibility: 'Nursing-facility level of care + Medicaid financial eligibility (income typically ≤300% SSI FBR ≈ $2,901/mo in 2025). Varies by waiver.',
+    eligibility: 'Nursing-facility level of care + Medicaid financial eligibility (income typically ≤300% SSI FBR ≈ $2,982/mo in 2026). Varies by waiver.',
     apply: 'Start with state Medicaid office or Area Agency on Aging / No Wrong Door / ADRC.',
     phone: '', web: 'https://www.medicaid.gov/medicaid/home-community-based-services/',
     criteria: { hasAny: ['disabled','chronic'] },
@@ -1320,8 +1320,8 @@ const RESOURCES = [
     id: 'va-pension', category: 'veterans', scope: 'federal',
     name: 'VA Pension + Aid & Attendance',
     states: 'ALL',
-    desc: 'Tax-free monthly pension for wartime veterans (and surviving spouses) age 65+ or permanently disabled. Aid & Attendance supplement adds up to ~$1,500–$2,200/mo for those needing help with ADLs or in assisted living/nursing.',
-    eligibility: 'Wartime service (at least 90 days active duty, one during wartime period); age 65+ OR permanent disability; income/net worth below limits (2025 net worth cap ~$159,240).',
+    desc: 'Tax-free monthly pension for wartime veterans (and surviving spouses) age 65+ or permanently disabled. With Aid & Attendance, MAPR for a single veteran is $29,093/yr ($2,424/mo) in 2026; higher with dependents.',
+    eligibility: 'Wartime service (at least 90 days active duty, one during wartime period); age 65+ OR permanent disability; income/net worth below limits (2026 net worth cap $163,699).',
     apply: 'Apply via va.gov, VA Regional Office, or accredited VSO (AMVETS, DAV, American Legion, VFW).',
     phone: '1-800-827-1000', web: 'https://www.va.gov/pension/',
     criteria: { hasAny: ['veteran'] }
