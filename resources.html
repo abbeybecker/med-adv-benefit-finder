@@ -1452,6 +1452,107 @@ const RESOURCES = [
   },
 ];
 
+// ---------- Match engine ----------
+// Returns { verdict: 'yes'|'maybe'|'no', reasons: [...] } for a resource given a profile.
+function evaluate(r, p) {
+  const reasons = [];
+  let verdict = 'yes';
+
+  // Geographic scope
+  if (r.states && r.states !== 'ALL') {
+    if (!p.state) { verdict = 'maybe'; reasons.push('Select state to confirm'); }
+    else if (!r.states.includes(p.state)) return { verdict: 'no', reasons: [`Not available in ${p.state}`] };
+  }
+
+  const c = r.criteria || {};
+
+  // FPL max
+  if (c.fplMax !== undefined) {
+    if (p.fpl === null) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Enter income to confirm FPL'); }
+    else if (p.fpl > c.fplMax) return { verdict: 'no', reasons: [`Income ${p.fpl}% FPL exceeds ${c.fplMax}% cap`] };
+    else reasons.push(`Income ${p.fpl}% FPL ≤ ${c.fplMax}% cap`);
+  }
+  // FPL floor
+  if (c.fplMin !== undefined && p.fpl !== null && p.fpl < c.fplMin) {
+    return { verdict: 'no', reasons: [`Income ${p.fpl}% FPL below ${c.fplMin}% floor (may qualify for Medicaid instead)`] };
+  }
+
+  // Age
+  if (c.ageMin !== undefined) {
+    if (p.age === null) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Enter age to confirm'); }
+    else if (p.age < c.ageMin) return { verdict: 'no', reasons: [`Age ${p.age} below ${c.ageMin} minimum`] };
+  }
+  if (c.ageMax !== undefined && p.age !== null && p.age > c.ageMax) {
+    return { verdict: 'no', reasons: [`Age ${p.age} above ${c.ageMax} maximum`] };
+  }
+
+  // Insurance required (any one of)
+  if (c.insurance && c.insurance.length) {
+    const any = c.insurance.some(t => p.insurance.has(t));
+    if (!any) {
+      if (p.insurance.size === 0) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Requires: ' + c.insurance.join(' or ')); }
+      else return { verdict: 'no', reasons: [`Requires ${c.insurance.join(' or ')}`] };
+    }
+  }
+  // Insurance excluded
+  if (c.insuranceExclude && c.insuranceExclude.length) {
+    const hit = c.insuranceExclude.find(t => p.insurance.has(t));
+    if (hit) return { verdict: 'no', reasons: [`Not for ${hit} holders`] };
+  }
+
+  // Housing
+  if (c.housing && c.housing.length) {
+    if (!p.housing) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Select housing status'); }
+    else if (!c.housing.includes(p.housing)) return { verdict: 'no', reasons: [`Housing status not eligible`] };
+  }
+
+  // Flags (any / all)
+  if (c.hasAny && c.hasAny.length) {
+    const got = c.hasAny.some(f => p.flags.has(f) || p.incsrc.has(f));
+    if (!got) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Needs: ' + c.hasAny.join(' or ')); }
+  }
+  if (c.hasAll && c.hasAll.length) {
+    const missing = c.hasAll.filter(f => !p.flags.has(f) && !p.incsrc.has(f));
+    if (missing.length) return { verdict: 'no', reasons: [`Requires ${missing.join(', ')}`] };
+  }
+
+  // Citizenship
+  if (c.citizenshipExclude && c.citizenshipExclude.length && p.citizen) {
+    if (c.citizenshipExclude.includes(p.citizen)) {
+      return { verdict: 'no', reasons: ['Requires citizen or qualified immigration status'] };
+    }
+  }
+  if (c.citizenship && c.citizenship.length && p.citizen && !c.citizenship.includes(p.citizen)) {
+    return { verdict: 'no', reasons: ['Citizenship status not eligible'] };
+  }
+
+  // Income sources
+  if (c.incomeSources && c.incomeSources.length) {
+    const any = c.incomeSources.some(s => p.incsrc.has(s));
+    if (!any) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Income source check'); }
+  }
+
+  // Custom predicate override (object return wins; 'no' wins over 'yes'; 'maybe' softens)
+  if (r.custom) {
+    const out = r.custom(p);
+    if (out === false) return { verdict: 'no', reasons: reasons.length ? reasons : ['Does not meet program rules'] };
+    if (out === 'maybe') { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Additional criteria apply — verify'); }
+    if (typeof out === 'object' && out && out.verdict) return out;
+  }
+
+  return { verdict, reasons };
+}
+
+// Run all resources against profile; returns grouped { yes: [], maybe: [], no: [] }
+function evaluateAll(p) {
+  const out = { yes: [], maybe: [], no: [] };
+  RESOURCES.forEach(r => {
+    const e = evaluate(r, p);
+    out[e.verdict].push({ resource: r, reasons: e.reasons });
+  });
+  return out;
+}
+
 function readProfile() {
   const getChecked = id => Array.from(document.querySelectorAll(`#${id} input[type=checkbox]:checked`)).map(i => i.value);
   const state = document.getElementById('f_state').value || '';
