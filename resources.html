@@ -947,6 +947,135 @@ const RESOURCES = [
       return p.fpl <= 200 ? 'yes' : 'maybe';
     }
   },
+
+  // ========== HEALTH INSURANCE ==========
+  {
+    id: 'medicaid', category: 'insurance', scope: 'state',
+    name: 'Medicaid (Adult Expansion)',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'State-run; all six PA/NJ/MD/DE/VA/DC expanded Medicaid. PA=Medical Assistance/PA MAWD, NJ=NJ FamilyCare, MD=Medicaid, DE=DMAP, VA=Cardinal Care, DC=Medicaid. No premiums or very low premiums; comprehensive coverage.',
+    eligibility: 'Adults ≤138% FPL. Higher for pregnant women (~205–214% FPL) and children (CHIP). Citizenship or qualifying immigration status required for full benefits; emergency Medicaid for others.',
+    apply: 'PA: COMPASS (compass.state.pa.us). NJ: NJ FamilyCare. MD: Maryland Health Connection. DE: Delaware ASSIST. VA: CommonHelp / Cover VA. DC: DC Health Link.',
+    phone: '', web: 'https://www.medicaid.gov',
+    criteria: { fplMax: 138, citizenshipExclude: ['undocumented','visa','tps','daca'] }
+  },
+  {
+    id: 'chip', category: 'insurance', scope: 'state',
+    name: 'CHIP — Children\'s Health Insurance',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'Low- or no-cost comprehensive coverage for children under 19 in households above Medicaid limits. PA CHIP / NJ FamilyCare Kids / MD Children\'s Health Program / DE CHIP / FAMIS VA / DC Healthy Families.',
+    eligibility: 'Children <19, household income roughly ≤300–400% FPL (varies by state).',
+    apply: 'Same portals as Medicaid above; one combined application.',
+    phone: '1-877-543-7669', web: 'https://www.insurekidsnow.gov',
+    criteria: { ageMax: 18, fplMax: 400 },
+    custom: p => {
+      if (!p.flags.has('children') && !(p.age !== null && p.age < 19)) return false;
+      if (p.fpl === null) return 'maybe';
+      return p.fpl <= 400 ? 'yes' : false;
+    }
+  },
+  {
+    id: 'aca', category: 'insurance', scope: 'federal',
+    name: 'ACA Marketplace (Healthcare.gov / State Exchange)',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'Premium tax credits and cost-sharing reductions for private plans. PA: Pennie. NJ: GetCoveredNJ. MD: Maryland Health Connection. DE/VA: healthcare.gov. DC: DC Health Link.',
+    eligibility: 'Income ≥100% FPL (no upper cliff through 2025 under ARPA/IRA). Not eligible for other affordable coverage (Medicaid/Medicare/job-based).',
+    apply: 'Open Enrollment Nov 1–Jan 15 each year; Special Enrollment for qualifying life events and ≤150% FPL.',
+    phone: '1-800-318-2596', web: 'https://www.healthcare.gov',
+    criteria: { fplMin: 100, insuranceExclude: ['medicare','medicaid','medicare_adv'] }
+  },
+  {
+    id: 'msp', category: 'insurance', scope: 'federal',
+    name: 'Medicare Savings Programs (QMB / SLMB / QI)',
+    states: 'ALL',
+    desc: 'State Medicaid pays Medicare Part B premium, and for QMB also pays Part A premium + all Medicare deductibles/coinsurance. Auto-enrolls in Extra Help.',
+    eligibility: 'Medicare beneficiary. QMB: ≤100% FPL. SLMB: ≤120% FPL. QI: ≤135% FPL. Asset limits: ~$9,660 individual / $14,470 couple (2025).',
+    apply: 'Apply via your state Medicaid office or SSA. Most SHIP counselors can assist.',
+    phone: '1-800-MEDICARE', web: 'https://www.medicare.gov/basics/costs/help/medicare-savings-programs',
+    criteria: { fplMax: 135, insurance: ['medicare','medicare_adv'] }
+  },
+  {
+    id: 'charity', category: 'insurance', scope: 'federal',
+    name: 'Hospital Financial Assistance / Charity Care',
+    states: 'ALL',
+    desc: 'Every nonprofit hospital (501(c)(3)) must offer a Financial Assistance Policy (FAP) discounting or waiving bills for eligible patients. NJ Charity Care is statewide; other states vary by hospital.',
+    eligibility: 'Varies by hospital — typically ≤200–500% FPL for some discount; ≤200% often fully free. NJ Charity Care: ≤300% FPL.',
+    apply: 'Ask the hospital billing office for the FAP application; submit within 240 days of first bill.',
+    phone: '', web: 'https://dollarfor.org/',
+    criteria: { fplMax: 500 }
+  },
+  {
+    id: 'ryan-white', category: 'insurance', scope: 'federal',
+    name: 'Ryan White HIV/AIDS Program (ADAP)',
+    states: 'ALL',
+    desc: 'Medication, insurance premium, and care-gap assistance for people with HIV. Includes ADAP (AIDS Drug Assistance Program) in every state.',
+    eligibility: 'HIV diagnosis; income typically ≤500% FPL (state-specific); uninsured or underinsured.',
+    apply: 'Contact state ADAP office or Ryan White Part B provider.',
+    phone: '1-800-448-0440', web: 'https://ryanwhite.hrsa.gov',
+    criteria: { fplMax: 500, hasAny: ['hiv'] }
+  },
+
+  // ========== FOOD & NUTRITION ==========
+  {
+    id: 'snap', category: 'food', scope: 'federal',
+    name: 'SNAP — Supplemental Nutrition Assistance Program',
+    states: 'ALL',
+    desc: 'Monthly benefit loaded on EBT card for groceries. Amount scales with household size and income.',
+    eligibility: 'Gross income ≤130% FPL, net ≤100% FPL. Asset test in some states. US citizen or qualified non-citizen (most LPRs after 5 years, refugees/asylees, children).',
+    apply: 'PA: COMPASS. NJ: NJOneApp. MD: MyDHR. DE: DE ASSIST. VA: CommonHelp. DC: DC Access.',
+    phone: '1-800-221-5689', web: 'https://www.fns.usda.gov/snap',
+    criteria: { fplMax: 130, citizenshipExclude: ['undocumented','visa','daca','tps'] }
+  },
+  {
+    id: 'wic', category: 'food', scope: 'federal',
+    name: 'WIC — Women, Infants & Children',
+    states: 'ALL',
+    desc: 'Supplemental food, formula, breastfeeding support, and nutrition education for pregnant/postpartum women, infants, and children up to age 5.',
+    eligibility: 'Pregnant/postpartum/breastfeeding woman OR child <5; household income ≤185% FPL OR receives Medicaid/SNAP/TANF. No citizenship restriction.',
+    apply: 'Contact local WIC agency; phone screening + appointment.',
+    phone: '', web: 'https://www.fns.usda.gov/wic',
+    criteria: { fplMax: 185 },
+    custom: p => {
+      if (!(p.flags.has('pregnant') || p.flags.has('children') || (p.age !== null && p.age < 5))) return 'maybe';
+      if (p.fpl !== null && p.fpl <= 185) return 'yes';
+      if (p.insurance.has('medicaid') || p.incsrc.has('tanf')) return 'yes';
+      return p.fpl === null ? 'maybe' : false;
+    }
+  },
+  {
+    id: 'mealsonwheels', category: 'food', scope: 'local',
+    name: 'Meals on Wheels',
+    states: 'ALL',
+    desc: 'Home-delivered meals for homebound older adults (and some disabled under-60 adults). Suggested donation, not charged. Includes wellness check at delivery.',
+    eligibility: 'Typically 60+ OR disabled AND homebound. Income not a strict requirement in most programs.',
+    apply: 'Find local program at mealsonwheelsamerica.org/find-meals or call your Area Agency on Aging.',
+    phone: '', web: 'https://www.mealsonwheelsamerica.org',
+    criteria: {},
+    custom: p => {
+      const eligible = (p.age !== null && p.age >= 60) || p.flags.has('disabled');
+      return eligible ? 'yes' : (p.age === null ? 'maybe' : false);
+    }
+  },
+  {
+    id: 'csfp', category: 'food', scope: 'federal',
+    name: 'CSFP — Commodity Supplemental Food Program (Senior Food Box)',
+    states: 'ALL',
+    desc: 'Monthly 30–40 lb box of USDA foods for low-income seniors 60+. Run through state ag departments and food banks.',
+    eligibility: 'Age 60+; income ≤130% FPL.',
+    apply: 'Contact local food bank or state CSFP coordinator.',
+    phone: '', web: 'https://www.fns.usda.gov/csfp/commodity-supplemental-food-program',
+    criteria: { ageMin: 60, fplMax: 130 }
+  },
+  {
+    id: 'foodpantry', category: 'food', scope: 'local',
+    name: 'Local Food Pantry / TEFAP',
+    states: 'ALL',
+    desc: 'Emergency groceries, often same-day. TEFAP (The Emergency Food Assistance Program) supplies most pantries with USDA food. No application for most pantries.',
+    eligibility: 'Self-attested need at most pantries. TEFAP box: ≤185% FPL.',
+    apply: 'Call 2-1-1 or search feedingamerica.org/find-your-local-foodbank.',
+    phone: '211', web: 'https://www.feedingamerica.org/find-your-local-foodbank',
+    criteria: {}
+  },
 ];
 
 function readProfile() {
