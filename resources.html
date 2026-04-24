@@ -1076,6 +1076,182 @@ const RESOURCES = [
     phone: '211', web: 'https://www.feedingamerica.org/find-your-local-foodbank',
     criteria: {}
   },
+
+  // ========== LEGAL AID ==========
+  {
+    id: 'lawhelp', category: 'legal', scope: 'federal',
+    name: 'LawHelp.org & LSC Directory',
+    states: 'ALL',
+    desc: 'National searchable directory of free/low-cost legal aid organizations by state and issue (housing, family, benefits, immigration, consumer, disability).',
+    eligibility: 'Varies by program. Most Legal Services Corporation grantees serve ≤125–200% FPL.',
+    apply: 'Enter your ZIP at lawhelp.org to find local programs; or call 2-1-1 for legal referral.',
+    phone: '211', web: 'https://www.lawhelp.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'pa-palegalaid', category: 'legal', scope: 'state',
+    name: 'PA Legal Aid Network',
+    states: ['PA'],
+    desc: 'Statewide network (MidPenn, Laurel, Neighborhood, North Penn, Northwestern, Legal Aid of SE PA, etc.) covering housing, public benefits, domestic violence, consumer, senior, and Medicaid/Medicare appeals.',
+    eligibility: 'Generally ≤125% FPL (higher for seniors and some matters).',
+    apply: 'Call PA Legal Aid hotline or apply online at palawhelp.org.',
+    phone: '1-800-322-7572', web: 'https://www.palegalaid.net',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'cls-philly', category: 'legal', scope: 'local',
+    name: 'Community Legal Services (CLS) Philadelphia',
+    states: ['PA'],
+    desc: 'Philadelphia-based free legal services in benefits (SSI/SSDI, SNAP, Medicaid), employment, family, homeownership, consumer, and immigration.',
+    eligibility: '≤200% FPL for most matters; Philadelphia residents.',
+    apply: 'Call CLS intake or walk in at 1424 Chestnut St or 1410 W. Erie Ave.',
+    phone: '215-981-3700', web: 'https://clsphila.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'pa-phlp', category: 'legal', scope: 'state',
+    name: 'PA Health Law Project',
+    states: ['PA'],
+    desc: 'Specialized legal help for Medicaid/CHIP/Medicare appeals, long-term care coverage, managed-care disputes, and health-related benefits for PA residents.',
+    eligibility: 'PA resident with health coverage issue; no strict income cutoff.',
+    apply: 'Call helpline; intake screens by issue type.',
+    phone: '1-800-274-3258', web: 'https://www.phlp.org',
+    criteria: {}
+  },
+  {
+    id: 'md-legalaid', category: 'legal', scope: 'state',
+    name: 'Maryland Legal Aid',
+    states: ['MD'],
+    desc: 'Statewide nonprofit covering housing, benefits, family, consumer, veterans, senior legal, and farm-worker issues.',
+    eligibility: '≤125% FPL for most matters (higher for seniors 60+ and some issues).',
+    apply: 'Call statewide intake or visit one of 12 regional offices.',
+    phone: '1-866-635-2948', web: 'https://www.mdlab.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'nj-lsnj', category: 'legal', scope: 'state',
+    name: 'Legal Services of New Jersey (LSNJ)',
+    states: ['NJ'],
+    desc: 'Statewide coverage via regional programs. Housing, benefits, family, consumer, immigration, disability, and veterans. Also runs LSNJLAW^SM self-help site.',
+    eligibility: '≤200% FPL typically.',
+    apply: 'Call LSNJ intake hotline or apply online at lsnjlawhotline.org.',
+    phone: '1-888-576-5529', web: 'https://www.lsnj.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'de-clasi', category: 'legal', scope: 'state',
+    name: 'Community Legal Aid Society (CLASI) — Delaware',
+    states: ['DE'],
+    desc: 'Delaware\'s free civil legal aid. Fair Housing, Disabilities Law, Elder Law, and general Legal Services Corporation program.',
+    eligibility: '≤200% FPL for most; disability and elder services have separate criteria.',
+    apply: 'Call the central intake line.',
+    phone: '1-302-575-0660', web: 'https://www.declasi.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'va-vplc', category: 'legal', scope: 'state',
+    name: 'Virginia Legal Aid (VLAS/LSNV/BRLS/CVLAS/LAJC/VPLC)',
+    states: ['VA'],
+    desc: 'Eight regional legal aid programs plus Virginia Poverty Law Center. Housing, benefits, family, consumer, immigration, and disability.',
+    eligibility: '≤125% FPL for most matters.',
+    apply: 'Call Virginia Legal Aid Line or use valegalaid.org zip-code lookup.',
+    phone: '1-866-534-5243', web: 'https://www.valegalaid.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'dc-lcsh', category: 'legal', scope: 'local',
+    name: 'DC Legal Aid (Legal Aid Society of DC / Legal Counsel for the Elderly / BLB)',
+    states: ['DC'],
+    desc: 'DC Legal Aid Society, Legal Counsel for the Elderly (AARP), Bread for the City Legal, Neighborhood Legal Services Program — full civil legal aid coverage.',
+    eligibility: '≤200% FPL (LCE serves DC residents 60+ regardless of income for some matters).',
+    apply: 'Call DC Legal Aid intake.',
+    phone: '202-628-1161', web: 'https://www.legalaiddc.org',
+    criteria: { fplMax: 200 }
+  },
+  {
+    id: 'probono', category: 'legal', scope: 'federal',
+    name: 'State Bar Lawyer Referral / Pro Bono',
+    states: 'ALL',
+    desc: 'Every state bar runs a lawyer referral service with reduced/free consultations, plus pro bono panels for low-income clients above legal aid cutoffs.',
+    eligibility: 'Typically ≤200–300% FPL for pro bono panels; referral service open to all.',
+    apply: 'PA Bar: 1-800-932-0311. MD Bar: 1-800-492-1964. NJ Bar: 732-249-5000. DE Bar: 302-478-8850. VA Bar: 1-800-552-7977. DC Bar: 202-626-3499.',
+    phone: '', web: 'https://www.americanbar.org/groups/legal_services/flh-home/flh-bar-directories-and-lawyer-finders/',
+    criteria: {}
+  },
+
+  // ========== INCOME & DISABILITY ==========
+  {
+    id: 'ssi', category: 'income', scope: 'federal',
+    name: 'SSI — Supplemental Security Income',
+    states: 'ALL',
+    desc: 'Monthly cash benefit for people age 65+, blind, or with a disability and very low income/assets. 2025 Federal Benefit Rate: $967/mo individual, $1,450 couple. Automatically Medicaid-eligible in most states.',
+    eligibility: 'Age 65+ OR disability/blindness; countable resources ≤$2,000 ind / $3,000 couple; income below FBR (varies). US citizen or qualified non-citizen.',
+    apply: 'Apply at SSA.gov, by phone, or at local SSA office. Disability determination through DDS.',
+    phone: '1-800-772-1213', web: 'https://www.ssa.gov/ssi',
+    criteria: { citizenshipExclude: ['undocumented','daca','visa','tps'] },
+    custom: p => {
+      const ageOrDis = (p.age !== null && p.age >= 65) || p.flags.has('disabled');
+      if (!ageOrDis) return p.flags.has('disabled') ? 'maybe' : false;
+      if (p.income !== null && p.income > 14000) return 'maybe';
+      return 'yes';
+    }
+  },
+  {
+    id: 'ssdi', category: 'income', scope: 'federal',
+    name: 'SSDI — Social Security Disability Insurance',
+    states: 'ALL',
+    desc: 'Monthly benefit for workers with sufficient work credits who become disabled. 5-month waiting period; Medicare after 24 months of entitlement. No income/asset limits beyond SGA while working.',
+    eligibility: 'Disability lasting ≥12 months or terminal; sufficient work credits (typically 5 of last 10 years worked). No income limit for non-work income.',
+    apply: 'Apply at SSA.gov or local SSA office. Consider SSDI+SSI concurrent application if low income/assets.',
+    phone: '1-800-772-1213', web: 'https://www.ssa.gov/benefits/disability/',
+    criteria: {},
+    custom: p => p.flags.has('disabled') ? 'yes' : 'maybe'
+  },
+  {
+    id: 'tanf', category: 'income', scope: 'state',
+    name: 'TANF — Temporary Assistance for Needy Families',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'Monthly cash assistance for families with children. Amounts low ($200–$600/mo typical). Includes employment/work requirements and time limits (60 months lifetime federal).',
+    eligibility: 'Household with child <18 (or pregnant); very low income (roughly ≤50% FPL in most states); US citizen or qualified non-citizen; work requirements.',
+    apply: 'Same portals as Medicaid/SNAP (COMPASS, NJOneApp, MyDHR, DE ASSIST, CommonHelp, DC Access).',
+    phone: '', web: 'https://www.acf.hhs.gov/ofa/programs/tanf',
+    criteria: { fplMax: 75, hasAny: ['children','pregnant'], citizenshipExclude: ['undocumented','daca','visa','tps'] }
+  },
+  {
+    id: 'nj-ga', category: 'income', scope: 'state',
+    name: 'NJ General Assistance (Work First NJ GA)',
+    states: ['NJ'],
+    desc: 'Cash and Medicaid for single adults or childless couples with no dependents. ~$140–$350/mo, plus SNAP.',
+    eligibility: 'NJ resident; employable or unemployable adult with very low income and resources ≤$2,000.',
+    apply: 'Apply at county Board of Social Services or via NJOneApp.',
+    phone: '', web: 'https://www.state.nj.us/humanservices/dfd/programs/workfirstnj/',
+    criteria: { fplMax: 75 }
+  },
+  {
+    id: 'md-taf', category: 'income', scope: 'state',
+    name: 'MD Temporary Disability Assistance Program (TDAP)',
+    states: ['MD'],
+    desc: 'Cash assistance (~$185/mo) for low-income MD adults with a short-term or pending-SSI disability.',
+    eligibility: 'MD resident; disabled (any duration including interim SSI applicant); income ≤program limit.',
+    apply: 'Apply at local DSS or MyDHR.',
+    phone: '', web: 'https://dhr.maryland.gov/temporary-cash-assistance/',
+    criteria: { hasAny: ['disabled'] }
+  },
+  {
+    id: 'hcbs', category: 'income', scope: 'state',
+    name: 'Medicaid HCBS Waivers (Home & Community-Based Services)',
+    states: 'ALL',
+    desc: 'Medicaid waivers that fund personal care, adult day, respite, home mods, transportation, and other supports to keep people out of facilities. PA: OLTL waivers. NJ: MLTSS. MD: Community First / Community Options. DE: DSAAPD. VA: CCC Plus. DC: EPD Waiver.',
+    eligibility: 'Nursing-facility level of care + Medicaid financial eligibility (income typically ≤300% SSI FBR ≈ $2,901/mo in 2025). Varies by waiver.',
+    apply: 'Start with state Medicaid office or Area Agency on Aging / No Wrong Door / ADRC.',
+    phone: '', web: 'https://www.medicaid.gov/medicaid/home-community-based-services/',
+    criteria: { hasAny: ['disabled','chronic'] },
+    custom: p => {
+      if (p.housing === 'ltc' || p.housing === 'alf') return 'yes';
+      if (p.flags.has('disabled') || (p.age !== null && p.age >= 65)) return 'maybe';
+      return 'maybe';
+    }
+  },
 ];
 
 function readProfile() {
