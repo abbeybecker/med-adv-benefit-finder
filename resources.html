@@ -770,6 +770,183 @@ const RESOURCES = [
     phone: '', web: 'https://www.hud.gov/topics/rental_assistance/phprog',
     criteria: { fplMax: 200, housing: ['renter','homeless','transitional','doubled','other_h'], citizenshipExclude: ['undocumented','daca','visa','tps'] }
   },
+
+  // ========== PHARMACEUTICAL ASSISTANCE ==========
+  {
+    id: 'goodrx', category: 'pharma', scope: 'federal',
+    name: 'GoodRx (Discount Card)',
+    states: 'ALL',
+    desc: 'Free discount card comparing retail cash prices across pharmacies. Often beats insurance copays for generics. Cannot be combined with insurance at point of sale.',
+    eligibility: 'No eligibility requirements — available to anyone. Most useful when uninsured, high-deductible, or for drugs not covered.',
+    apply: 'Search at goodrx.com or download the app; show coupon at pharmacy.',
+    phone: '', web: 'https://www.goodrx.com',
+    criteria: {}
+  },
+  {
+    id: 'costplus', category: 'pharma', scope: 'federal',
+    name: 'Mark Cuban Cost Plus Drug Company',
+    states: 'ALL',
+    desc: 'Direct-to-consumer online pharmacy with transparent pricing (manufacturer cost + 15% + $3 dispensing + shipping). Strong for generics; 2,500+ medications.',
+    eligibility: 'Open to anyone with a valid prescription. Does not bill insurance.',
+    apply: 'Create an account at costplusdrugs.com; prescriber sends Rx to Cost Plus pharmacy.',
+    phone: '', web: 'https://costplusdrugs.com',
+    criteria: {}
+  },
+  {
+    id: 'needymeds', category: 'pharma', scope: 'federal',
+    name: 'NeedyMeds (Assistance Directory)',
+    states: 'ALL',
+    desc: 'Nonprofit clearinghouse: searchable directory of manufacturer PAPs, copay cards, disease-based funds, free/low-cost clinics, diagnostic assistance, and camps.',
+    eligibility: 'No eligibility — it\'s a directory/search tool. Programs listed have varying criteria.',
+    apply: 'Search needymeds.org by drug name or diagnosis.',
+    phone: '1-800-503-6897', web: 'https://www.needymeds.org',
+    criteria: {}
+  },
+  {
+    id: 'healthwell', category: 'pharma', scope: 'federal',
+    name: 'HealthWell Foundation',
+    states: 'ALL',
+    desc: 'Copay & premium assistance for people with insurance. Disease-specific funds (cancer, MS, rheumatologic, rare disease, etc.); open/closed status changes — check fund availability.',
+    eligibility: 'Must have insurance covering the medication; income typically ≤500% FPL (varies by fund); diagnosis matches an open fund.',
+    apply: 'Apply at healthwellfoundation.org after confirming a fund is open.',
+    phone: '1-800-675-8416', web: 'https://www.healthwellfoundation.org',
+    criteria: { fplMax: 500, insuranceExclude: ['uninsured'], hasAny: ['chronic','cancer','hiv'] }
+  },
+  {
+    id: 'pan', category: 'pharma', scope: 'federal',
+    name: 'PAN Foundation (Patient Access Network)',
+    states: 'ALL',
+    desc: 'Copay, travel, and insurance premium assistance for 70+ disease funds. Primarily serves Medicare beneficiaries.',
+    eligibility: 'Medicare beneficiary (most funds); income ≤500% FPL (varies); diagnosis matches open fund.',
+    apply: 'Check open funds at panfoundation.org; apply by phone or online.',
+    phone: '1-866-316-7263', web: 'https://www.panfoundation.org',
+    criteria: { fplMax: 500, hasAny: ['chronic','cancer','hiv'] },
+    custom: p => (p.hasMedicare || p.insurance.has('medicare_adv')) ? 'yes' : 'maybe'
+  },
+  {
+    id: 'rxoutreach', category: 'pharma', scope: 'federal',
+    name: 'Rx Outreach',
+    states: 'ALL',
+    desc: 'Nonprofit mail-order pharmacy. Low flat fees per 90-day supply for 500+ generic medications. Works for uninsured or those with high copays.',
+    eligibility: '≤400% FPL typically.',
+    apply: 'Download enrollment form at rxoutreach.org or call.',
+    phone: '1-888-796-1234', web: 'https://rxoutreach.org',
+    criteria: { fplMax: 400 }
+  },
+  {
+    id: 'paps', category: 'pharma', scope: 'federal',
+    name: 'Manufacturer Patient Assistance Programs (PAPs)',
+    states: 'ALL',
+    desc: 'Most major pharma manufacturers run free-drug PAPs for uninsured or underinsured patients. RxAssist and Medicine Assistance Tool (MAT) are searchable directories.',
+    eligibility: 'Typically uninsured or underinsured; income ≤200–400% FPL (varies by manufacturer).',
+    apply: 'Search rxassist.org or mat.org by drug name; complete manufacturer form (prescriber signature usually required).',
+    phone: '', web: 'https://www.rxassist.org',
+    criteria: { fplMax: 400 }
+  },
+  {
+    id: 'lis', category: 'pharma', scope: 'federal',
+    name: 'Medicare Extra Help / LIS (Low-Income Subsidy)',
+    states: 'ALL',
+    desc: 'Reduces or eliminates Part D premiums, deductibles, and copays (capped at ~$4.90 generic / ~$12.15 brand in 2025; $0 for dual eligibles). Now expanded — no partial benefit tier.',
+    eligibility: 'Medicare-eligible; income ≤150% FPL; resources ≤$17,220 individual / $34,360 couple (2025).',
+    apply: 'Apply via SSA (ssa.gov/extrahelp) or through state Medicaid office — auto-enrolled if on Medicaid, MSP, or SSI.',
+    phone: '1-800-772-1213', web: 'https://www.ssa.gov/medicare/part-d-extra-help',
+    criteria: { fplMax: 150, insurance: ['medicare','medicare_adv'] }
+  },
+  {
+    id: 'pa-pace', category: 'pharma', scope: 'state',
+    name: 'PA PACE (Pharmaceutical Assistance Contract for the Elderly)',
+    states: ['PA'],
+    desc: 'PA-funded wrap-around drug coverage for seniors. Copay: $6 generic / $9 brand. Works alongside Part D (acts as secondary).',
+    eligibility: 'Age 65+; PA resident ≥90 days; single income ≤$14,500 / couple ≤$17,700 (prior-year).',
+    apply: 'Apply via APPRISE or Area Agency on Aging.',
+    phone: '1-800-225-7223', web: 'https://www.pace.pa.gov',
+    criteria: { ageMin: 65 },
+    custom: p => {
+      if (!(p.age !== null && p.age >= 65) || p.state !== 'PA') return false;
+      if (p.income === null) return 'maybe';
+      const cap = p.hh >= 2 ? 17700 : 14500;
+      return p.income <= cap ? 'yes' : false;
+    }
+  },
+  {
+    id: 'pa-pacenet', category: 'pharma', scope: 'state',
+    name: 'PA PACENET (Higher-Income Tier)',
+    states: ['PA'],
+    desc: 'Expanded tier of PA PACE. Copays: $8 generic / $15 brand, plus a monthly Part D premium deducted if paired with a Part D plan.',
+    eligibility: 'Age 65+; PA resident; single income $14,501–$33,500 / couple $17,701–$41,500.',
+    apply: 'Apply via APPRISE or Area Agency on Aging; one combined PACE/PACENET application.',
+    phone: '1-800-225-7223', web: 'https://www.pace.pa.gov',
+    criteria: { ageMin: 65 },
+    custom: p => {
+      if (!(p.age !== null && p.age >= 65) || p.state !== 'PA') return false;
+      if (p.income === null) return 'maybe';
+      const [lo, hi] = p.hh >= 2 ? [17700, 41500] : [14500, 33500];
+      return (p.income > lo && p.income <= hi) ? 'yes' : false;
+    }
+  },
+  {
+    id: 'nj-paad', category: 'pharma', scope: 'state',
+    name: 'NJ PAAD (Pharmaceutical Assistance to the Aged & Disabled)',
+    states: ['NJ'],
+    desc: 'NJ drug coverage: $5 generic / $7 brand. Works with Part D (enrollees are auto-enrolled in Extra Help application).',
+    eligibility: 'Age 65+ OR disabled receiving SSDI; NJ resident; single income ≤~$52,142 / couple ≤~$59,209 (2024; updates annually).',
+    apply: 'Apply at NJSave.nj.gov (single app for PAAD, Senior Gold, Lifeline, USF, LIHEAP).',
+    phone: '1-800-792-9745', web: 'https://www.state.nj.us/humanservices/doas/services/paad/',
+    criteria: {},
+    custom: p => {
+      if (p.state !== 'NJ') return false;
+      const ageOk = (p.age !== null && p.age >= 65) || p.incsrc.has('ssdi') || p.flags.has('disabled');
+      if (!ageOk) return false;
+      if (p.income === null) return 'maybe';
+      const cap = p.hh >= 2 ? 59209 : 52142;
+      return p.income <= cap ? 'yes' : false;
+    }
+  },
+  {
+    id: 'nj-seniorgold', category: 'pharma', scope: 'state',
+    name: 'NJ Senior Gold Prescription Discount',
+    states: ['NJ'],
+    desc: 'NJ tier above PAAD. 50% co-pay share plus $15 after a $2,000 annual out-of-pocket, up to an annual cap.',
+    eligibility: 'Age 65+ OR disabled; NJ resident; income just above PAAD cap (single $52,142–$62,142; couple $59,209–$69,209 — 2024).',
+    apply: 'Apply via NJSave.nj.gov.',
+    phone: '1-800-792-9745', web: 'https://www.state.nj.us/humanservices/doas/services/seniorgold/',
+    criteria: {},
+    custom: p => {
+      if (p.state !== 'NJ') return false;
+      const ageOk = (p.age !== null && p.age >= 65) || p.incsrc.has('ssdi') || p.flags.has('disabled');
+      if (!ageOk) return false;
+      if (p.income === null) return 'maybe';
+      const [lo, hi] = p.hh >= 2 ? [59209, 69209] : [52142, 62142];
+      return (p.income > lo && p.income <= hi) ? 'yes' : false;
+    }
+  },
+  {
+    id: 'md-spdap', category: 'pharma', scope: 'state',
+    name: 'MD SPDAP (Senior Prescription Drug Assistance)',
+    states: ['MD'],
+    desc: 'Up to $50/month toward Medicare Part D premiums. Does not cover copays.',
+    eligibility: 'MD resident with Medicare; household income ≤300% FPL.',
+    apply: 'Apply via Maryland Health Connection or call SPDAP.',
+    phone: '1-800-551-5995', web: 'https://marylandspdap.com',
+    criteria: { fplMax: 300, insurance: ['medicare','medicare_adv'] }
+  },
+  {
+    id: 'de-dpap', category: 'pharma', scope: 'state',
+    name: 'DE DPAP (Delaware Prescription Assistance Program)',
+    states: ['DE'],
+    desc: 'Delaware pays up to $3,000/yr per person for Part D premiums and drug costs for Medicare beneficiaries without other drug coverage.',
+    eligibility: 'DE resident; Medicare eligible; ≤200% FPL OR significant Rx expenses ≥40% of annual income.',
+    apply: 'Apply via DHSS Division of Services for Aging and Adults with Physical Disabilities.',
+    phone: '1-800-464-4357', web: 'https://dhss.delaware.gov/dhss/dsaapd/dpap.html',
+    criteria: { insurance: ['medicare','medicare_adv'] },
+    custom: p => {
+      if (p.state !== 'DE') return false;
+      if (!(p.insurance.has('medicare') || p.insurance.has('medicare_adv'))) return 'maybe';
+      if (p.fpl === null) return 'maybe';
+      return p.fpl <= 200 ? 'yes' : 'maybe';
+    }
+  },
 ];
 
 function readProfile() {
