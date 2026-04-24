@@ -570,7 +570,208 @@ const COUNTIES = {
   DC: ['Washington, DC']
 };
 
-// ---------- Patient profile (read from form) ----------
+// ---------- Resource database ----------
+// Shape: { id, name, category, scope: 'federal'|'state'|'local', states: [...]|'ALL',
+//   desc, eligibility, apply, phone, tty, web,
+//   criteria: { fplMax, fplMin, ageMin, ageMax, insurance, insuranceExclude, housing,
+//               hasAny, hasAll, citizenship, incomeSources },
+//   custom: (p) => true|false|'maybe' (optional override) }
+
+const RESOURCES = [
+
+  // ========== UTILITY ASSISTANCE ==========
+  {
+    id: 'liheap', category: 'utility', scope: 'federal',
+    name: 'LIHEAP — Low Income Home Energy Assistance',
+    states: 'ALL',
+    desc: 'Federal block grant, state-administered. Heating & cooling bill assistance, crisis grants for shutoffs, and weatherization referrals.',
+    eligibility: 'Generally ≤150% FPL or ≤60% state median income; must be responsible for home energy costs. Thresholds vary by state.',
+    apply: 'Apply through your state LIHEAP office or county assistance office. Season typically Nov–Apr (crisis year-round in most states).',
+    phone: '1-866-674-6327', web: 'https://www.acf.hhs.gov/ocs/programs/liheap',
+    criteria: { fplMax: 150, housing: ['renter','owner','transitional','doubled'] }
+  },
+  {
+    id: 'pa-peco-cap', category: 'utility', scope: 'local',
+    name: 'PECO CAP (Customer Assistance Program)',
+    states: ['PA'],
+    desc: 'Discounted electric/gas rates for PECO customers in SE Pennsylvania. Bills capped as % of income; arrears forgiveness after on-time payments.',
+    eligibility: '≤150% FPL; must be a PECO residential customer in name on the account.',
+    apply: 'Call PECO Universal Services or apply in person at a CAP agency.',
+    phone: '1-800-774-7040', web: 'https://www.peco.com/WaysToSave/ForYourHome/Pages/CAP.aspx',
+    criteria: { fplMax: 150, housing: ['renter','owner'] }
+  },
+  {
+    id: 'pa-pgw-crp', category: 'utility', scope: 'local',
+    name: 'PGW CRP (Customer Responsibility Program)',
+    states: ['PA'],
+    desc: 'Philadelphia Gas Works affordability plan. Fixed monthly bill based on income; arrears forgiven 1/36 per on-time payment.',
+    eligibility: '≤150% FPL; PGW residential gas customer in Philadelphia.',
+    apply: 'Apply at PGW CRP centers or online.',
+    phone: '215-235-1000', web: 'https://www.pgworks.com/residential/ways-to-save/customer-assistance-programs/crp',
+    criteria: { fplMax: 150, housing: ['renter','owner'] }
+  },
+  {
+    id: 'pa-def', category: 'utility', scope: 'state',
+    name: 'Dollar Energy Fund (Hardship Grants)',
+    states: ['PA'],
+    desc: 'Emergency grants for past-due electric/gas/water bills. Many PA utilities partner (PECO, PGW, PPL, Duquesne, Columbia Gas).',
+    eligibility: '≤200% FPL typically; must have received a shutoff notice or been shut off.',
+    apply: 'Apply via Dollar Energy Fund portal or at partner agency.',
+    phone: '1-866-762-2348', web: 'https://www.dollarenergy.org/need-help/',
+    criteria: { fplMax: 200, hasAny: ['utility_shutoff'] }
+  },
+  {
+    id: 'md-ohep', category: 'utility', scope: 'state',
+    name: 'MD OHEP / MEAP (Energy Assistance)',
+    states: ['MD'],
+    desc: 'Maryland Office of Home Energy Programs — heating (MEAP), electric (EUSP), arrears (Arrearage Retirement), and weatherization referrals.',
+    eligibility: '≤175% FPL for MEAP/EUSP.',
+    apply: 'Apply online at MyDHR or visit local energy assistance office.',
+    phone: '1-800-332-6347', web: 'https://dhr.maryland.gov/office-of-home-energy-programs/',
+    criteria: { fplMax: 175, housing: ['renter','owner','transitional'] }
+  },
+  {
+    id: 'nj-usf', category: 'utility', scope: 'state',
+    name: 'NJ USF — Universal Service Fund',
+    states: ['NJ'],
+    desc: 'Monthly credits on electric/gas bills; combines with NJ LIHEAP. Also includes Fresh Start arrears forgiveness for clients current on USF for 12 months.',
+    eligibility: '≤60% state median income (roughly ≤200% FPL for most households).',
+    apply: 'Apply with LIHEAP application via DCAid portal.',
+    phone: '1-800-510-3102', web: 'https://www.nj.gov/bpu/assistance/programs/',
+    criteria: { fplMax: 200, housing: ['renter','owner'] }
+  },
+  {
+    id: 'nj-page', category: 'utility', scope: 'state',
+    name: 'NJ PAGE — Payment Assistance for Gas & Electric',
+    states: ['NJ'],
+    desc: 'Up to $700 one-time for households facing electric/gas shutoff who do not qualify for LIHEAP/USF.',
+    eligibility: '≤400% FPL with documented shutoff notice or arrears.',
+    apply: 'Apply via NJ SHARES / DCAid.',
+    phone: '1-732-982-8710', web: 'https://www.njpoweron.org',
+    criteria: { fplMax: 400, hasAny: ['utility_shutoff'] }
+  },
+  {
+    id: 'de-energy', category: 'utility', scope: 'state',
+    name: 'DE Energy Assistance (LIHEAP + DEAP)',
+    states: ['DE'],
+    desc: 'Delaware LIHEAP (heating/cooling) and Delaware Energy Assistance Program — crisis grants and weatherization.',
+    eligibility: '≤200% FPL.',
+    apply: 'Apply at Catholic Charities (New Castle), First State Community Action (Kent/Sussex), or online.',
+    phone: '1-800-464-4357', web: 'https://dhss.delaware.gov/dhss/dss/liheap.html',
+    criteria: { fplMax: 200, housing: ['renter','owner'] }
+  },
+  {
+    id: 'va-eap', category: 'utility', scope: 'state',
+    name: 'VA Energy Assistance Program',
+    states: ['VA'],
+    desc: 'Fuel Assistance (Nov–Jan), Cooling Assistance (Jun–Aug), and Crisis Assistance for shutoffs/heating emergencies.',
+    eligibility: '≤150% FPL (Fuel/Cooling), crisis year-round.',
+    apply: 'Apply through CommonHelp (Virginia DSS).',
+    phone: '1-855-635-4370', web: 'https://www.dss.virginia.gov/benefit/ea.cgi',
+    criteria: { fplMax: 150 }
+  },
+  {
+    id: 'lifeline', category: 'utility', scope: 'federal',
+    name: 'Lifeline (Phone/Broadband Discount)',
+    states: 'ALL',
+    desc: 'FCC program: $9.25/mo discount on phone or internet ($34.25 on Tribal lands). Can combine with tribal programs.',
+    eligibility: '≤135% FPL OR participation in Medicaid, SNAP, SSI, FPHA, Veterans Pension.',
+    apply: 'Apply at LifelineSupport.org.',
+    phone: '1-800-234-9473', web: 'https://www.lifelinesupport.org/',
+    criteria: {},
+    custom: p => p.fpl !== null && p.fpl <= 135 ? true :
+                 (p.insurance.has('medicaid') || p.incsrc.has('ssi') || p.flags.has('veteran') ? true : 'maybe')
+  },
+
+  // ========== HOUSING ==========
+  {
+    id: 'section8', category: 'housing', scope: 'federal',
+    name: 'Section 8 Housing Choice Voucher',
+    states: 'ALL',
+    desc: 'Federal rental subsidy paid to private landlords; tenant pays ~30% of income toward rent. Administered by local Public Housing Authorities (PHAs).',
+    eligibility: 'Generally ≤50% Area Median Income (AMI); 75% of new vouchers must go to ≤30% AMI. Citizenship/eligible-immigrant required. Most waitlists are long or closed.',
+    apply: 'Apply at your local PHA — waitlists open intermittently. Check AffordableHousing.com and PHA websites.',
+    phone: '', web: 'https://www.hud.gov/topics/rental_assistance',
+    criteria: { fplMax: 200, housing: ['renter','homeless','transitional','doubled','ltc','alf','other_h'], citizenshipExclude: ['undocumented','daca','visa','tps'] }
+  },
+  {
+    id: 'haf', category: 'housing', scope: 'state',
+    name: 'Homeowner Assistance Fund (HAF)',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'ARPA-funded mortgage, property tax, HOA, utility, and insurance assistance for homeowners behind due to COVID-era hardship. Some state programs are paused or winding down — check current status.',
+    eligibility: '≤150% AMI typically; must be primary residence and document hardship since Jan 2020.',
+    apply: 'PA Homeowner Assistance Fund (PHFA), NJ HAF (DCA), MD HAF (DHCD), DE HAF, VA HAF (VHDA), DC HAF (DHCD).',
+    phone: '', web: 'https://www.ncsha.org/homeowner-assistance-fund/',
+    criteria: { housing: ['owner'], fplMax: 500 }
+  },
+  {
+    id: 'erap', category: 'housing', scope: 'state',
+    name: 'Emergency Rental Assistance / ERAP',
+    states: ['PA','NJ','MD','DE','VA','DC'],
+    desc: 'Rental arrears and forward-month assistance; most state ERAPs have wound down but many counties + DC still operate programs. Eviction-prevention component often active.',
+    eligibility: '≤80% AMI (usually matches 200–300% FPL); documented COVID-era or current housing instability.',
+    apply: 'Call 2-1-1 for current local program. DC ERAP via DHS.',
+    phone: '211', web: 'https://www.consumerfinance.gov/coronavirus/mortgage-and-housing-assistance/renter-protections/find-help-with-rent-and-utilities/',
+    criteria: { housing: ['renter','transitional','doubled'], fplMax: 300, hasAny: ['eviction'] }
+  },
+  {
+    id: 'pa-hemap', category: 'housing', scope: 'state',
+    name: 'PA HEMAP — Homeowner Emergency Mortgage Assistance',
+    states: ['PA'],
+    desc: 'Loans (repayable) to bring a mortgage current and cover up to 24 months of payments for Pennsylvania homeowners facing foreclosure.',
+    eligibility: 'Must have received Act 91 foreclosure notice; delinquency due to circumstances beyond your control; reasonable prospect of resuming full payments.',
+    apply: 'Apply within 33 days of receiving Act 91 notice through a HEMAP-approved counseling agency.',
+    phone: '1-800-342-2397', web: 'https://www.phfa.org/hemap/',
+    criteria: { housing: ['owner'], hasAny: ['eviction'] }
+  },
+  {
+    id: 'pa-property-rebate', category: 'housing', scope: 'state',
+    name: 'PA Property Tax / Rent Rebate',
+    states: ['PA'],
+    desc: 'Annual rebate up to $1,000 for eligible Pennsylvanians on property taxes or rent paid the prior year.',
+    eligibility: 'Age 65+ OR widow/widower 50+ OR disabled 18+; income ≤$46,520 (excludes half of Social Security).',
+    apply: 'File form PA-1000 by June 30 each year; free help at APPRISE and local Area Agencies on Aging.',
+    phone: '1-888-222-9190', web: 'https://www.revenue.pa.gov/IncentivesCreditsPrograms/PropertyTaxRentRebateProgram/',
+    criteria: { housing: ['renter','owner'] },
+    custom: p => {
+      if (!(p.isSenior || p.flags.has('disabled') || (p.age !== null && p.age >= 50))) return false;
+      if (p.income !== null && p.income > 46520) return 'maybe';
+      return 'yes';
+    }
+  },
+  {
+    id: 'md-homeowner-tax', category: 'housing', scope: 'state',
+    name: 'MD Homeowners Property Tax Credit',
+    states: ['MD'],
+    desc: 'Limits property tax based on household income. Most homeowners ≤$60k combined gross income qualify for a credit.',
+    eligibility: 'Homeowner; combined gross household income ≤ approx. $60,000; net worth <$200,000 (excluding home).',
+    apply: 'File SDAT Form HTC by Oct 1 each year.',
+    phone: '1-410-767-4433', web: 'https://dat.maryland.gov/realproperty/Pages/Homeowners\'-Property-Tax-Credit-Program.aspx',
+    criteria: { housing: ['owner'] },
+    custom: p => (p.income !== null && p.income > 60000) ? false : (p.income === null ? 'maybe' : 'yes')
+  },
+  {
+    id: 'coc-homeless', category: 'housing', scope: 'federal',
+    name: 'Continuum of Care / Homeless Services',
+    states: 'ALL',
+    desc: 'Entry point for emergency shelter, transitional housing, Rapid Re-Housing (RRH), and Permanent Supportive Housing (PSH). Most areas use a Coordinated Entry assessment.',
+    eligibility: 'Currently homeless, fleeing DV, or at imminent risk of homelessness.',
+    apply: 'Call 2-1-1 or the local CoC hotline for Coordinated Entry.',
+    phone: '211', web: 'https://www.hudexchange.info/programs/coc/',
+    criteria: { housing: ['homeless','transitional','doubled','other_h'] }
+  },
+  {
+    id: 'pha-publichousing', category: 'housing', scope: 'federal',
+    name: 'Public Housing (PHA Owned Units)',
+    states: 'ALL',
+    desc: 'Federally subsidized apartments owned by local Public Housing Authority. Rent is typically 30% of adjusted income.',
+    eligibility: '≤80% AMI; most PHAs prioritize ≤30% AMI. Waitlists can be years long.',
+    apply: 'Apply directly at each local PHA.',
+    phone: '', web: 'https://www.hud.gov/topics/rental_assistance/phprog',
+    criteria: { fplMax: 200, housing: ['renter','homeless','transitional','doubled','other_h'], citizenshipExclude: ['undocumented','daca','visa','tps'] }
+  },
+];
+
 function readProfile() {
   const getChecked = id => Array.from(document.querySelectorAll(`#${id} input[type=checkbox]:checked`)).map(i => i.value);
   const state = document.getElementById('f_state').value || '';
