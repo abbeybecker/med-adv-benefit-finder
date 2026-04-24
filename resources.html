@@ -1452,6 +1452,175 @@ const RESOURCES = [
   },
 ];
 
+// ---------- County & state contacts ----------
+// Shape per state: { default: [{label, phone, note?}, ...], counties: { "County Name": [...] } }
+// Only numbers I could verify confidently are included; elsewhere the default block + 2-1-1 cover the gap.
+const CONTACTS = {
+  PA: {
+    default: [
+      { label: 'PA DHS Helpline (Medicaid / SNAP / TANF / CHIP / LIHEAP)', phone: '1-800-692-7462' },
+      { label: 'APPRISE — PA SHIP (Medicare counseling)', phone: '1-800-783-7067' },
+      { label: 'PA Link to Aging & Disability Resources', phone: '1-800-753-8827' },
+      { label: 'PA Legal Aid Network intake', phone: '1-800-322-7572' },
+      { label: 'PA Property Tax / Rent Rebate', phone: '1-888-222-9190' },
+      { label: 'PA Domestic Violence Hotline', phone: '1-800-932-4632' },
+      { label: 'MATP (Medicaid transport) county finder', phone: '1-800-842-2020' },
+    ],
+    counties: {
+      'Philadelphia': [
+        { label: 'Philadelphia Corporation for Aging (PCA)', phone: '215-765-9040' },
+        { label: 'Community Legal Services intake', phone: '215-981-3700' },
+        { label: 'SEPTA CCT Connect (paratransit)', phone: '215-580-7145' },
+        { label: 'Community Behavioral Health crisis (24/7)', phone: '215-685-6440' },
+      ],
+      'Allegheny': [
+        { label: 'Allegheny Link (Area Agency on Aging)', phone: '1-866-730-2368' },
+        { label: 'resolve Crisis Services (24/7)', phone: '1-888-796-8226' },
+        { label: 'ACCESS paratransit (Pittsburgh Regional Transit)', phone: '412-562-5353' },
+        { label: 'Neighborhood Legal Services', phone: '412-255-6700' },
+      ],
+    },
+  },
+  NJ: {
+    default: [
+      { label: 'NJ FamilyCare (Medicaid / CHIP)', phone: '1-800-701-0710' },
+      { label: 'NJ SHIP — State Health Insurance Program', phone: '1-800-792-8820' },
+      { label: 'NJ Division of Aging Services', phone: '1-877-222-3737' },
+      { label: 'Legal Services of NJ intake', phone: '1-888-576-5529' },
+      { label: 'NJ PAAD / Senior Gold / NJSave', phone: '1-800-792-9745' },
+      { label: 'NJ DV Hotline', phone: '1-800-572-7233' },
+      { label: 'NJ Transit Access Link (paratransit)', phone: '1-800-955-2321' },
+    ],
+    counties: {
+      'Essex': [
+        { label: 'Essex County Division on Aging', phone: '973-395-8375' },
+      ],
+      'Camden': [
+        { label: 'Camden County Office on Aging', phone: '856-858-3220' },
+      ],
+    },
+  },
+  MD: {
+    default: [
+      { label: 'Maryland Health Connection (Medicaid / Marketplace)', phone: '1-855-642-8572' },
+      { label: 'MD SHIP — State Health Insurance Assistance', phone: '1-800-243-3425' },
+      { label: 'MD Dept of Aging Senior Info & Assistance', phone: '1-800-243-3425' },
+      { label: 'MD OHEP / MEAP energy assistance', phone: '1-800-332-6347' },
+      { label: 'Maryland Legal Aid intake', phone: '1-866-635-2948' },
+      { label: 'MD DV Hotline', phone: '1-800-634-3577' },
+      { label: 'MTA Mobility (Baltimore paratransit)', phone: '410-764-8181' },
+    ],
+    counties: {
+      'Baltimore City': [
+        { label: 'Baltimore City CARE (aging & disability)', phone: '410-396-2273' },
+        { label: 'Behavioral Health System Baltimore (crisis)', phone: '410-433-5255' },
+      ],
+      'Montgomery': [
+        { label: 'Montgomery County Aging & Disability Services', phone: '240-777-3000' },
+        { label: 'MoCo Crisis Center (24/7)', phone: '240-777-4000' },
+      ],
+      "Prince George's": [
+        { label: "Prince George's County Aging & Disabilities", phone: '301-265-8450' },
+      ],
+    },
+  },
+  DE: {
+    default: [
+      { label: 'DE State Service Centers (benefits intake)', phone: '1-800-464-4357' },
+      { label: 'ELDERinfo — DE SHIP (Medicare counseling)', phone: '1-800-336-9500' },
+      { label: 'DE Aging & Adults with Physical Disabilities', phone: '1-800-223-9074' },
+      { label: 'CLASI — Community Legal Aid Society', phone: '302-575-0660' },
+      { label: 'DART Paratransit', phone: '1-800-553-3278' },
+      { label: 'DE Domestic Violence Hotline', phone: '1-800-701-0456' },
+    ],
+    counties: {
+      'New Castle': [
+        { label: 'Catholic Charities Wilmington (LIHEAP intake)', phone: '302-655-9624' },
+      ],
+      'Kent': [
+        { label: 'First State Community Action (LIHEAP — Kent)', phone: '302-424-6440' },
+      ],
+      'Sussex': [
+        { label: 'First State Community Action (LIHEAP — Sussex)', phone: '302-856-7761' },
+      ],
+    },
+  },
+  VA: {
+    default: [
+      { label: 'Cover Virginia (Medicaid / FAMIS)', phone: '1-855-242-8282' },
+      { label: 'VICAP — VA SHIP (Medicare counseling)', phone: '1-800-552-3402' },
+      { label: 'VA Dept for Aging & Rehabilitative Services', phone: '1-800-552-5019' },
+      { label: 'Virginia Legal Aid Line', phone: '1-866-534-5243' },
+      { label: 'VA Energy Assistance (CommonHelp)', phone: '1-855-635-4370' },
+      { label: 'VA Family Violence Hotline', phone: '1-800-838-8238' },
+    ],
+    counties: {
+      'Fairfax': [
+        { label: 'Fairfax Aging, Disability & Caregiver Resources', phone: '703-324-7948' },
+        { label: 'CSB Emergency Services (24/7)', phone: '703-573-5679' },
+        { label: 'Fairfax Connector ADA (Fastran)', phone: '703-339-7200' },
+      ],
+      'Arlington': [
+        { label: 'Arlington Aging & Disability Services', phone: '703-228-1700' },
+        { label: 'Arlington CSB 24/7 Emergency', phone: '703-228-5160' },
+      ],
+    },
+  },
+  DC: {
+    default: [
+      { label: 'DC Health Link (Medicaid / Marketplace)', phone: '1-855-532-5465' },
+      { label: 'DC Department of Aging & Community Living', phone: '202-724-5626' },
+      { label: 'DC Health Insurance Counseling Project (SHIP)', phone: '202-434-2277' },
+      { label: 'Legal Aid Society of DC', phone: '202-628-1161' },
+      { label: 'DC DHS Customer Service Center', phone: '202-727-5355' },
+      { label: 'DC Victim Hotline', phone: '1-844-443-5732' },
+      { label: 'MetroAccess (paratransit)', phone: '202-962-2700' },
+      { label: 'ACCESS HelpLine (DC behavioral crisis, 24/7)', phone: '1-888-793-4357' },
+    ],
+    counties: {},
+  },
+};
+
+// Always-available national hotlines (rendered as a universal footer on county panel)
+const NATIONAL_CONTACTS = [
+  { label: '2-1-1 (local health & human services)', phone: '211' },
+  { label: '988 Suicide & Crisis Lifeline', phone: '988' },
+  { label: 'Veterans Crisis Line', phone: '988 press 1 (or text 838255)' },
+  { label: 'National DV Hotline', phone: '1-800-799-7233' },
+  { label: 'SSA — SSI / SSDI / retirement', phone: '1-800-772-1213' },
+  { label: '1-800-MEDICARE', phone: '1-800-633-4227' },
+];
+
+function renderCountyContacts(p) {
+  const el = document.getElementById('countyContact');
+  if (!p.state) {
+    el.innerHTML = `
+      <div class="county-panel">
+        <h3>Quick contacts (select state for local numbers)</h3>
+        <div class="county-grid">
+          ${NATIONAL_CONTACTS.map(c => `<div class="contact-row"><span class="contact-label">${c.label}</span><a href="tel:${c.phone.replace(/[^0-9+]/g,'')}">${c.phone}</a></div>`).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+  const stateBlock = CONTACTS[p.state] || { default: [], counties: {} };
+  const countyBlock = (p.county && stateBlock.counties[p.county]) || null;
+  const stateName = ({PA:'Pennsylvania',NJ:'New Jersey',MD:'Maryland',DE:'Delaware',VA:'Virginia',DC:'DC'})[p.state] || p.state;
+  const row = c => `<div class="contact-row"><span class="contact-label">${c.label}</span><a href="tel:${c.phone.replace(/[^0-9+]/g,'')}">${c.phone}</a></div>`;
+  const countyHtml = countyBlock
+    ? `<h3 style="margin-top:0.75rem;">${p.county} County contacts</h3>
+       <div class="county-grid">${countyBlock.map(row).join('')}</div>`
+    : (p.county ? `<p style="margin-top:0.5rem; font-size:0.82rem; color:var(--text-muted);">For ${p.county} County-specific contacts, dial <strong>2-1-1</strong> or call the statewide helplines above.</p>` : '');
+  el.innerHTML = `
+    <div class="county-panel">
+      <h3>${stateName} statewide contacts</h3>
+      <div class="county-grid">${stateBlock.default.map(row).join('')}</div>
+      ${countyHtml}
+      <h3 style="margin-top:0.75rem;">National</h3>
+      <div class="county-grid">${NATIONAL_CONTACTS.map(row).join('')}</div>
+    </div>`;
+}
+
 // ---------- Match engine ----------
 // Returns { verdict: 'yes'|'maybe'|'no', reasons: [...] } for a resource given a profile.
 function evaluate(r, p) {
@@ -1621,7 +1790,13 @@ function renderFplStrip() {
 }
 
 // ---------- Wire up listeners ----------
-function onChange() { renderFplHint(); renderFplStrip(); /* render() added later */ }
+function onChange() {
+  const p = readProfile();
+  renderFplHint();
+  renderFplStrip();
+  renderCountyContacts(p);
+  /* renderResults() added in step 6 */
+}
 function resetForm() {
   document.querySelectorAll('#intakePanel input, #intakePanel select').forEach(el => {
     if (el.type === 'checkbox') el.checked = false;
@@ -1643,8 +1818,7 @@ document.getElementById('f_state').addEventListener('change', () => { populateCo
 
 // Initial render
 populateCounties();
-renderFplHint();
-renderFplStrip();
+onChange();
 </script>
 </body>
 </html>
