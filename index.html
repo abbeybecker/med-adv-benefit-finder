@@ -81,11 +81,6 @@ body {
   position: relative;
   z-index: 1;
 }
-.header-inner { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
-.nav-tabs { display: flex; gap: 0.25rem; }
-.nav-tab { display: inline-block; padding: 0.5rem 0.9rem; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(255,255,255,0.18); transition: background 0.15s; }
-.nav-tab:hover { background: rgba(255,255,255,0.2); }
-.nav-tab.active { background: white; color: var(--accent); border-color: white; }
 .header .tag {
   display: inline-block;
   background: rgba(255,255,255,0.15);
@@ -442,17 +437,9 @@ body {
 <body>
 
 <div class="header">
-  <div class="header-inner">
-    <div>
-      <h1>MA Plan Benefit Finder</h1>
-      <p>Medicare Advantage supplemental benefits lookup — PA, DE, MD, NJ</p>
-      <span class="tag">CMS PBP Data — CY 2026</span>
-    </div>
-    <div class="nav-tabs">
-      <a class="nav-tab active" href="index.html">MA Plan Finder</a>
-      <a class="nav-tab" href="resources.html">Resource Finder</a>
-    </div>
-  </div>
+  <h1>MA Plan Benefit Finder</h1>
+  <p>Medicare Advantage supplemental benefits lookup — PA, DE, MD, NJ</p>
+  <span class="tag">CMS PBP Data — CY 2026</span>
 </div>
 
 <div class="guidance-banner">
