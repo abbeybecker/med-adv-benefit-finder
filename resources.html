@@ -1475,6 +1475,200 @@ const RESOURCES = [
     phone: '', web: 'https://www.dav.org/veterans/i-need-a-ride/',
     criteria: { hasAny: ['veteran'] }
   },
+
+  // ========== DISEASE-SPECIFIC FOUNDATIONS & GRANTS ==========
+  {
+    id: 'cancercare', category: 'disease', scope: 'federal',
+    name: 'CancerCare — Copay & Financial Assistance',
+    states: 'ALL',
+    desc: 'Limited-grant copay assistance for specific cancer diagnoses (varies — funds open/close), plus free counseling, support groups, and small grants for transportation, home care, and child care during treatment.',
+    eligibility: 'Cancer diagnosis matching an open fund; income generally ≤500% FPL; insured for the medication.',
+    apply: 'Check open funds and apply at cancercare.org/copayfoundation, or call.',
+    phone: '1-800-813-4673', web: 'https://www.cancercare.org',
+    criteria: { fplMax: 500, dx: ['cancer_any','cancer_breast','cancer_lung','cancer_blood'] }
+  },
+  {
+    id: 'paf-copay', category: 'disease', scope: 'federal',
+    name: 'Patient Advocate Foundation — Co-Pay Relief',
+    states: 'ALL',
+    desc: 'Direct copay grants for ~30 disease funds (many cancers, autoimmune, MS, Alzheimer\'s, heart failure, sickle cell, etc.). Also runs MedCareLine and case management.',
+    eligibility: 'Insured (covers the drug); income ≤400% FPL (some funds higher); diagnosis matches an open fund.',
+    apply: 'Apply at copays.org or call. Funds open/close — check first.',
+    phone: '1-866-512-3861', web: 'https://www.copays.org',
+    criteria: { fplMax: 500, insuranceExclude: ['uninsured'],
+      dx: ['cancer_any','cancer_breast','cancer_lung','cancer_blood','autoimmune','ms','alzheimers','heart','sickle','rare','copd','parkinsons'] }
+  },
+  {
+    id: 'lls-copay', category: 'disease', scope: 'federal',
+    name: 'Leukemia & Lymphoma Society (LLS) — Co-Pay & Patient Aid',
+    states: 'ALL',
+    desc: 'Copay assistance (annual grants up to $10K+ depending on dx fund), Patient Aid grants ($100), Susan Lang Pay-It-Forward travel fund, and Information Resource Center.',
+    eligibility: 'Blood cancer diagnosis (leukemia, lymphoma, myeloma, MDS, MPN). Income ≤500% FPL for most copay funds; Patient Aid open to anyone with blood cancer.',
+    apply: 'Apply at lls.org/copay; Patient Aid via lls.org/financial-support.',
+    phone: '1-877-557-2672', web: 'https://www.lls.org',
+    criteria: { dx: ['cancer_blood','cancer_any'] }
+  },
+  {
+    id: 'familyreach', category: 'disease', scope: 'federal',
+    name: 'Family Reach — Cancer Family Living Expenses',
+    states: 'ALL',
+    desc: 'Direct payments to landlords/utilities/grocers for families navigating cancer costs. Also financial education, telephone case management, and resource navigation.',
+    eligibility: 'Patient (any age) actively in cancer treatment OR within 1 year post-treatment; financial hardship.',
+    apply: 'Provider-initiated referral via familyreach.org (or social worker/case manager).',
+    phone: '1-857-233-2764', web: 'https://familyreach.org',
+    criteria: { dx: ['cancer_any','cancer_breast','cancer_lung','cancer_blood'] }
+  },
+  {
+    id: 'komen', category: 'disease', scope: 'federal',
+    name: 'Susan G. Komen — Patient Care Center',
+    states: 'ALL',
+    desc: 'Helpline + financial assistance program (limited grants for treatment-related expenses) and breast cancer screening/diagnostic navigation.',
+    eligibility: 'Breast cancer diagnosis (or actively in diagnostic workup for grants); income ≤300% FPL typically.',
+    apply: 'Call Komen Helpline weekdays; web intake at komen.org.',
+    phone: '1-877-465-6636', web: 'https://www.komen.org/support-resources/',
+    criteria: { dx: ['cancer_breast','cancer_any'] }
+  },
+  {
+    id: 'akf-hipp', category: 'disease', scope: 'federal',
+    name: 'American Kidney Fund — HIPP Program',
+    states: 'ALL',
+    desc: 'Health Insurance Premium Program: pays Medicare/private/Marketplace premiums for dialysis or transplant patients with financial need. Also grants for ESRD-related expenses.',
+    eligibility: 'On dialysis or transplant; ≤400% FPL; not eligible for Medicaid that fully pays the premium.',
+    apply: 'Provider/social worker initiates application at kidneyfund.org/hipp.',
+    phone: '1-800-638-8299', web: 'https://www.kidneyfund.org',
+    criteria: { fplMax: 400, dx: ['esrd','transplant'] }
+  },
+  {
+    id: 'als-assoc', category: 'disease', scope: 'federal',
+    name: 'ALS Association — Care Services & Equipment Grants',
+    states: 'ALL',
+    desc: 'Equipment loan closets (wheelchairs, AAC devices, hospital beds), respite/home care grants, ALS-specialty clinic referral, and certified caregiver navigation.',
+    eligibility: 'ALS diagnosis. Most services free regardless of income (equipment loans, support groups, clinic care); financial grants need-based.',
+    apply: 'Contact your regional ALS Association chapter via als.org.',
+    phone: '1-800-782-4747', web: 'https://www.als.org',
+    criteria: { dx: ['als'] }
+  },
+  {
+    id: 'parkinsons-fdn', category: 'disease', scope: 'federal',
+    name: "Parkinson's Foundation Helpline & Aware-in-Care",
+    states: 'ALL',
+    desc: 'Helpline (multilingual) for symptom/medication questions, hospital safety kit (Aware-in-Care), care navigation, and local chapter referral. Limited respite-grant network via affiliates.',
+    eligibility: "Parkinson's disease diagnosis or caregiver; no income requirement for helpline/navigation.",
+    apply: 'Call helpline or visit parkinson.org.',
+    phone: '1-800-473-4636', web: 'https://www.parkinson.org',
+    criteria: { dx: ['parkinsons'] }
+  },
+  {
+    id: 'nmss', category: 'disease', scope: 'federal',
+    name: 'National Multiple Sclerosis Society — Financial Assistance',
+    states: 'ALL',
+    desc: 'Need-based grants for emergency expenses (rent/utilities/cooling), home/auto adaptations, and care services. Plus MS Navigator (1:1 case mgr) and MS-specialty clinic referral.',
+    eligibility: 'MS diagnosis; financial need; specific grants have varying eligibility (income, assets, urgency).',
+    apply: 'Call MS Navigator or apply at nationalmssociety.org/financial-assistance.',
+    phone: '1-800-344-4867', web: 'https://www.nationalmssociety.org',
+    criteria: { dx: ['ms'] }
+  },
+  {
+    id: 'sicklecell', category: 'disease', scope: 'federal',
+    name: 'Sickle Cell Disease Association of America — Patient Assistance',
+    states: 'ALL',
+    desc: 'Local member-org navigation (~50 chapters), advocacy, drug-trial referral, and emergency assistance funds via local chapters.',
+    eligibility: 'Sickle cell diagnosis (or trait carrier for some services).',
+    apply: 'Find local member organization at sicklecelldisease.org.',
+    phone: '1-800-421-8453', web: 'https://www.sicklecelldisease.org',
+    criteria: { dx: ['sickle'] }
+  },
+  {
+    id: 'nhf', category: 'disease', scope: 'federal',
+    name: 'National Bleeding Disorders Foundation (NHF)',
+    states: 'ALL',
+    desc: 'Insurance navigation, product safety hotline, scholarship, and HANDI info center. Local chapters offer emergency assistance.',
+    eligibility: 'Hemophilia A/B, von Willebrand disease, or other bleeding disorder.',
+    apply: 'Find local chapter at bleeding.org.',
+    phone: '1-800-424-2634', web: 'https://www.bleeding.org',
+    criteria: { dx: ['hemophilia'] }
+  },
+  {
+    id: 'cf-compass', category: 'disease', scope: 'federal',
+    name: 'CF Foundation Compass',
+    states: 'ALL',
+    desc: 'CF-specialist case management — insurance, financial, legal, and CF center navigation. Also runs the Patient Assistance program for Trikafta and other modulators.',
+    eligibility: 'Cystic fibrosis diagnosis.',
+    apply: 'Email/call Compass at cff.org/compass.',
+    phone: '1-844-266-7277', web: 'https://www.cff.org/managing-cf/cf-foundation-compass',
+    criteria: { dx: ['cf'] }
+  },
+  {
+    id: 'copd-fdn', category: 'disease', scope: 'federal',
+    name: 'COPD Foundation Information Line',
+    states: 'ALL',
+    desc: '1:1 educator support, oxygen-equipment guidance, pulmonary-rehab finder, and COPD360social patient community.',
+    eligibility: 'COPD or chronic respiratory diagnosis; no income test for information services.',
+    apply: 'Call C.O.P.D. Information Line.',
+    phone: '1-866-316-2673', web: 'https://www.copdfoundation.org',
+    criteria: { dx: ['copd'] }
+  },
+  {
+    id: 'alz-helpline', category: 'disease', scope: 'federal',
+    name: "Alzheimer's Association 24/7 Helpline + Care Navigation",
+    states: 'ALL',
+    desc: '24/7 multilingual helpline staffed by clinicians/social workers, free care consultations, MedicAlert + Safe Return enrollment, and local chapter respite/grants.',
+    eligibility: "Alzheimer's or other dementia diagnosis (or caregiver thereof); no income test for helpline.",
+    apply: 'Call 24/7 helpline.',
+    phone: '1-800-272-3900', web: 'https://www.alz.org',
+    criteria: { dx: ['alzheimers'] }
+  },
+  {
+    id: 'nami', category: 'disease', scope: 'federal',
+    name: 'NAMI HelpLine + Local Affiliates',
+    states: 'ALL',
+    desc: 'Mental health information, peer-led support groups, family-to-family education, and crisis-resource referral. Local affiliates often run respite, advocacy, and re-entry programs.',
+    eligibility: 'Anyone with a mental-health concern (patient or family); no eligibility for helpline.',
+    apply: 'Call HelpLine M–F 10am–10pm ET, text "HelpLine" to 62640, or chat at nami.org.',
+    phone: '1-800-950-6264', web: 'https://www.nami.org',
+    criteria: { dx: ['smi'] }
+  },
+  {
+    id: 'nord', category: 'disease', scope: 'federal',
+    name: 'NORD — National Organization for Rare Disorders',
+    states: 'ALL',
+    desc: 'Disease-specific patient assistance programs (insurance premium, copay, diagnostic testing, travel, medical food), plus rare-disease database and clinical-trial finder.',
+    eligibility: 'Diagnosis matching an open NORD fund (~20+ rare diseases); income ≤500% FPL typically.',
+    apply: 'Search open programs at rarediseases.org/patient-assistance-programs.',
+    phone: '1-203-744-0100', web: 'https://rarediseases.org',
+    criteria: { fplMax: 500, dx: ['rare'] }
+  },
+  {
+    id: 'helphopelive', category: 'disease', scope: 'federal',
+    name: 'Help Hope Live — Transplant & Catastrophic Injury Fundraising',
+    states: 'ALL',
+    desc: 'Tax-deductible community-fundraising platform for organ transplant, brain/spinal cord injury, or other catastrophic medical expenses. Funds are managed by HHL and paid to vendors.',
+    eligibility: 'Transplant candidate/recipient OR catastrophic injury (TBI/SCI/severe burns).',
+    apply: 'Apply at helphopelive.org; full setup once approved.',
+    phone: '1-800-642-8399', web: 'https://helphopelive.org',
+    criteria: { dx: ['transplant'] }
+  },
+  {
+    id: 'reeve', category: 'disease', scope: 'federal',
+    name: 'Christopher & Dana Reeve Foundation — Quality of Life Grants',
+    states: 'ALL',
+    desc: 'Direct-effect grants up to $25K for organizations + Paralysis Resource Center (free 1:1 information specialist for people living with paralysis and their families).',
+    eligibility: 'Paralysis (SCI, stroke, MS, ALS, cerebral palsy, or other). Information services free; financial grants flow through nonprofits.',
+    apply: 'Call PRC information specialist or visit christopherreeve.org.',
+    phone: '1-800-539-7309', web: 'https://www.christopherreeve.org',
+    criteria: {},
+    custom: p => (p.dx && (p.dx.has('rare') || p.flags.has('disabled'))) ? 'maybe' : 'maybe'
+  },
+  {
+    id: 'insulin-savings', category: 'disease', scope: 'federal',
+    name: 'Insulin $35 Cap + Manufacturer Savings (Lilly / Novo / Sanofi)',
+    states: 'ALL',
+    desc: 'Medicare Part D caps insulin at $35/mo. Lilly Insulin Value Program, Novo Nordisk MyInsulinRx, and Sanofi Insulins Valyou Savings Program offer ~$35/mo for uninsured/cash-pay.',
+    eligibility: 'Diabetes requiring insulin. Medicare Part D enrollees automatic. Manufacturer programs: usually US resident, non-Medicaid, non-VA.',
+    apply: 'Lilly: insulinaffordability.com. Novo: novocare.com. Sanofi: insulinsvalyou.com.',
+    phone: '', web: 'https://www.diabetes.org/tools-resources/affordable-insulin',
+    criteria: { dx: ['diabetes'] }
+  },
 ];
 
 // ---------- County & state contacts ----------
