@@ -341,8 +341,27 @@ body {
   margin-bottom: 0.5rem;
   color: var(--blue);
 }
-.county-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem 1rem; font-size: 0.85rem; }
-.county-grid .contact-row { background: rgba(255,255,255,0.5); padding: 0.35rem 0.55rem; border-radius: 6px; }
+.county-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.5rem 0.75rem; font-size: 0.85rem; }
+.county-grid .contact-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: rgba(255,255,255,0.6);
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  gap: 0.15rem;
+}
+.county-grid .contact-row .contact-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: normal;
+  line-height: 1.3;
+}
+.county-grid .contact-row a {
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 .empty-state {
   background: var(--surface);
