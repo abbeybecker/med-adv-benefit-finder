@@ -516,13 +516,38 @@ body {
         <label class="check-item"><input type="checkbox" value="veteran"> Veteran</label>
         <label class="check-item"><input type="checkbox" value="pregnant"> Pregnant</label>
         <label class="check-item"><input type="checkbox" value="disabled"> Disabled</label>
-        <label class="check-item"><input type="checkbox" value="chronic"> Chronic illness</label>
         <label class="check-item"><input type="checkbox" value="children"> Children &lt;18</label>
         <label class="check-item"><input type="checkbox" value="eviction"> Facing eviction / foreclosure</label>
         <label class="check-item"><input type="checkbox" value="utility_shutoff"> Utility shutoff risk</label>
-        <label class="check-item"><input type="checkbox" value="cancer"> Cancer dx</label>
-        <label class="check-item"><input type="checkbox" value="hiv"> HIV dx</label>
         <label class="check-item"><input type="checkbox" value="caregiver"> Has caregiver / is one</label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Major diagnoses (check all that apply)</label>
+      <div class="check-grid" id="f_dx">
+        <label class="check-item"><input type="checkbox" value="cancer_any"> Cancer (any)</label>
+        <label class="check-item"><input type="checkbox" value="cancer_breast"> Breast cancer</label>
+        <label class="check-item"><input type="checkbox" value="cancer_lung"> Lung cancer</label>
+        <label class="check-item"><input type="checkbox" value="cancer_blood"> Blood cancer (leuk/lymph/myeloma)</label>
+        <label class="check-item"><input type="checkbox" value="hiv"> HIV / AIDS</label>
+        <label class="check-item"><input type="checkbox" value="esrd"> Kidney disease / ESRD / dialysis</label>
+        <label class="check-item"><input type="checkbox" value="diabetes"> Diabetes</label>
+        <label class="check-item"><input type="checkbox" value="heart"> Heart disease / CHF</label>
+        <label class="check-item"><input type="checkbox" value="copd"> COPD / chronic lung</label>
+        <label class="check-item"><input type="checkbox" value="als"> ALS</label>
+        <label class="check-item"><input type="checkbox" value="parkinsons"> Parkinson's</label>
+        <label class="check-item"><input type="checkbox" value="alzheimers"> Alzheimer's / dementia</label>
+        <label class="check-item"><input type="checkbox" value="ms"> Multiple sclerosis</label>
+        <label class="check-item"><input type="checkbox" value="autoimmune"> Lupus / RA / autoimmune</label>
+        <label class="check-item"><input type="checkbox" value="sickle"> Sickle cell disease</label>
+        <label class="check-item"><input type="checkbox" value="hemophilia"> Hemophilia / bleeding d/o</label>
+        <label class="check-item"><input type="checkbox" value="cf"> Cystic fibrosis</label>
+        <label class="check-item"><input type="checkbox" value="hep_c"> Hepatitis C</label>
+        <label class="check-item"><input type="checkbox" value="transplant"> Organ transplant</label>
+        <label class="check-item"><input type="checkbox" value="smi"> Severe mental illness</label>
+        <label class="check-item"><input type="checkbox" value="rare"> Rare disease (other)</label>
+        <label class="check-item"><input type="checkbox" value="chronic"> Other chronic illness</label>
       </div>
     </div>
 
@@ -1701,6 +1726,17 @@ function evaluate(r, p) {
     if (!any) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Income source check'); }
   }
 
+  // Diagnoses (any-of)
+  if (c.dx && c.dx.length) {
+    const any = c.dx.some(d => p.dx && p.dx.has(d));
+    if (!any) {
+      if (!p.dx || p.dx.size === 0) { if (verdict === 'yes') verdict = 'maybe'; reasons.push('Diagnosis match required'); }
+      else return { verdict: 'no', reasons: ['Diagnosis not in eligible list'] };
+    } else {
+      reasons.push('Diagnosis matches program');
+    }
+  }
+
   // Custom predicate override (object return wins; 'no' wins over 'yes'; 'maybe' softens)
   if (r.custom) {
     const out = r.custom(p);
@@ -1734,12 +1770,17 @@ function readProfile() {
   const incsrc = new Set(getChecked('f_incsrc'));
   const housing = document.getElementById('f_housing').value || '';
   const flags = new Set(getChecked('f_flags'));
+  const dx = new Set(getChecked('f_dx'));
+  // Auto-set legacy flags so older resource criteria still match
+  if (dx.size) flags.add('chronic');
+  if (dx.has('cancer_any') || dx.has('cancer_breast') || dx.has('cancer_lung') || dx.has('cancer_blood')) flags.add('cancer');
+  if (dx.has('hiv')) flags.add('hiv');
   const fpl = fplPct(isFinite(income) ? income : null, hh);
   return {
     state, county,
     age: isFinite(age) ? age : null,
     hh, income: isFinite(income) ? income : null,
-    fpl, insurance, citizen, incsrc, housing, flags,
+    fpl, insurance, citizen, incsrc, housing, flags, dx,
     isSenior: isFinite(age) ? age >= 65 : false,
     isChild: isFinite(age) ? age < 18 : false,
     hasMedicare: new Set(getChecked('f_insurance')).has('medicare') || new Set(getChecked('f_insurance')).has('medicare_adv'),
@@ -1802,6 +1843,7 @@ const CATEGORIES = [
   { id: 'veterans',    label: 'Veterans',             icon: '🎖️' },
   { id: 'immigration', label: 'Immigration',          icon: '🌎' },
   { id: 'transport',   label: 'Transportation',       icon: '🚗' },
+  { id: 'disease',     label: 'Disease-Specific',     icon: '🧬' },
 ];
 const CAT_BY_ID = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
@@ -1936,7 +1978,7 @@ document.getElementById('f_state').addEventListener('change', () => { populateCo
   document.getElementById(id).addEventListener('input', onChange);
   document.getElementById(id).addEventListener('change', onChange);
 });
-['f_insurance','f_incsrc','f_flags'].forEach(id => {
+['f_insurance','f_incsrc','f_flags','f_dx'].forEach(id => {
   document.getElementById(id).addEventListener('change', onChange);
 });
 
