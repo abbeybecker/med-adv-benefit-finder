@@ -586,7 +586,13 @@ body {
 
     <div class="btn-row">
       <button class="btn btn-primary btn-full" onclick="window.print()">Print / Save PDF</button>
-      <button class="btn btn-secondary btn-full" onclick="resetForm()">Reset</button>
+      <button class="btn btn-secondary btn-full" onclick="copyShareLink(this)">Copy shareable link</button>
+    </div>
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn btn-secondary btn-full" onclick="resetForm()">Reset all</button>
+    </div>
+    <div class="field-hint" style="margin-top:0.5rem;">
+      Intake (excluding patient name / MRN / notes) is saved in your browser and restored on next visit.
     </div>
   </aside>
 
@@ -2216,6 +2222,80 @@ function renderResults() {
   ].join('');
 }
 
+// ---------- Persistence (localStorage + URL params) ----------
+// Patient name, MRN, and notes are deliberately excluded — they're PHI.
+const PERSIST = {
+  text:   ['f_age','f_hh','f_income','f_pclin','f_pdate'],
+  select: ['f_state','f_county','f_citizen','f_housing'],
+  checks: ['f_insurance','f_incsrc','f_flags','f_dx'],
+};
+const STORAGE_KEY = 'mabf-resources-intake-v1';
+
+function serializeIntake() {
+  const out = {};
+  PERSIST.text.concat(PERSIST.select).forEach(id => {
+    const v = document.getElementById(id).value;
+    if (v) out[id] = v;
+  });
+  PERSIST.checks.forEach(id => {
+    const checked = Array.from(document.querySelectorAll(`#${id} input:checked`)).map(i => i.value);
+    if (checked.length) out[id] = checked.join(',');
+  });
+  return out;
+}
+
+function applyIntake(obj) {
+  // Apply state first so county options exist before we set county
+  if (obj.f_state !== undefined) {
+    document.getElementById('f_state').value = obj.f_state;
+    populateCounties();
+  }
+  if (obj.f_county !== undefined) document.getElementById('f_county').value = obj.f_county;
+  PERSIST.text.forEach(id => { if (obj[id] !== undefined) document.getElementById(id).value = obj[id]; });
+  PERSIST.select.filter(id => id !== 'f_state' && id !== 'f_county').forEach(id => {
+    if (obj[id] !== undefined) document.getElementById(id).value = obj[id];
+  });
+  PERSIST.checks.forEach(id => {
+    if (obj[id] !== undefined) {
+      const values = obj[id].split(',');
+      document.querySelectorAll(`#${id} input`).forEach(i => { i.checked = values.includes(i.value); });
+    }
+  });
+}
+
+function saveLocal() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeIntake())); } catch (e) {}
+}
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) applyIntake(JSON.parse(raw));
+  } catch (e) {}
+}
+function clearLocal() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+function loadFromUrl() {
+  const params = new URLSearchParams(location.search);
+  if (![...params.keys()].length) return false;
+  const obj = {};
+  params.forEach((v, k) => { obj[k] = v; });
+  applyIntake(obj);
+  return true;
+}
+
+function copyShareLink(btn) {
+  const params = new URLSearchParams(serializeIntake()).toString();
+  const url = location.origin + location.pathname + (params ? '?' + params : '');
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Link copied';
+    setTimeout(() => { btn.textContent = orig; }, 1800);
+  }).catch(() => {
+    prompt('Copy this link:', url);
+  });
+}
+
 // ---------- Wire up listeners ----------
 function onChange() {
   const p = readProfile();
@@ -2224,6 +2304,7 @@ function onChange() {
   renderCountyContacts(p);
   renderResults();
   renderPrintHeader(p);
+  saveLocal();
 }
 function resetForm() {
   document.querySelectorAll('#intakePanel input, #intakePanel select').forEach(el => {
@@ -2232,6 +2313,9 @@ function resetForm() {
     else el.value = '';
   });
   populateCounties();
+  clearLocal();
+  // Clear URL params so refresh doesn't re-apply them
+  if (location.search) history.replaceState({}, '', location.pathname);
   onChange();
 }
 
@@ -2244,8 +2328,10 @@ document.getElementById('f_state').addEventListener('change', () => { populateCo
   document.getElementById(id).addEventListener('change', onChange);
 });
 
-// Initial render
+// Initial render — URL params win over localStorage; both are read once at boot
 populateCounties();
+const restoredFromUrl = loadFromUrl();
+if (!restoredFromUrl) loadLocal();
 onChange();
 </script>
 </body>
