@@ -451,7 +451,7 @@ body {
     </div>
     <div class="guidance-body">
       <p>Look at the patient's insurance card for the <strong>H-code</strong> (contract number) and <strong>plan number</strong> — usually printed near the plan name or in small text at the bottom. It looks something like <strong>H9532 049</strong> or <strong>H3312-025</strong>.</p>
-      <p>Type it into the search bar as <strong>H9532_049</strong> (with an underscore) and it should pull up the exact plan.</p>
+      <p>Type it into the search bar however it appears on the card — <strong>H3312-025</strong>, <strong>H3312 025</strong>, or <strong>H3312_025</strong> all work.</p>
       <p>If you can't find the H-code, just search by the plan name or insurance company printed on the card — that'll usually narrow it down to a few options.</p>
       <p class="guidance-caveat">This tool shows <em>whether</em> a benefit exists on someone's plan — it doesn't always tell you the dollar amounts (like how much the OTC card is worth or how many meals are included). Those details are often blank in the CMS data and require checking the plan's Evidence of Coverage or calling the plan. But at least you'll know what to ask about before you pick up the phone.</p>
     </div>
@@ -542,7 +542,8 @@ document.querySelectorAll('.chip').forEach(chip => {
 });
 
 document.getElementById('searchInput').addEventListener('input', e => {
-  searchText = e.target.value.toLowerCase();
+  // Normalize H-code separators: "H3312-025" or "H3312 025" → "H3312_025"
+  searchText = e.target.value.toLowerCase().replace(/(\d)[-\s](\d)/g, '$1_$2');
   render();
 });
 
