@@ -665,6 +665,7 @@ function renderCard(p) {
             <div class="benefit-item"><span class="label">OTC Benefit</span><span class="value ${p.otc_amt ? 'yes' : (p.otc ? 'yes' : 'no')}">${p.otc_amt || otcDetail}</span></div>
             ${p.otc_mode ? `<div class="benefit-item"><span class="label">OTC Delivery</span><span class="value yes">${p.otc_mode}</span></div>` : ''}
             <div class="benefit-item"><span class="label">Meal Benefit</span><span class="value ${p.meals ? 'yes' : (p.meal ? 'yes' : 'no')}">${p.meals || mealDetail}</span></div>
+            ${p.meal_type ? `<div class="benefit-item"><span class="label">Meal Type</span><span class="value yes">${p.meal_type}</span></div>` : ''}
           </div>
         </div>
         <div class="benefit-section">
