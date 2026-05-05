@@ -283,22 +283,6 @@ body {
 .sl-ssbci { color: var(--accent); }
 .sl-postacute .dot { background: var(--red-warm); }
 .sl-postacute { color: var(--red-warm); }
-.sl-hospice .dot { background: var(--blue); }
-.sl-hospice { color: var(--blue); }
-
-.hospice-note {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-.hospice-note strong { color: var(--text); font-weight: 600; }
-.hospice-note .caveat {
-  display: block;
-  margin-top: 0.4rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
 
 .benefit-grid {
   display: grid;
@@ -668,12 +652,6 @@ function renderCard(p) {
             <div class="benefit-item"><span class="label">Skilled Nursing Facility</span>${valHtml(p.snf_cost || null)}</div>
             <div class="benefit-item"><span class="label">SNF Auth Required</span>${p.snf_auth !== undefined ? ynHtml(p.snf_auth) : valHtml(null)}</div>
           </div>
-        </div>
-        <div class="benefit-section">
-          <div class="section-label sl-hospice"><span class="dot"></span>HOSPICE</div>
-          <p class="hospice-note">Covered under <strong>Original Medicare (Part A)</strong> for all MA enrollees. The plan does not pay for the hospice benefit itself — Medicare pays the hospice agency directly. The plan continues to cover non-hospice services (e.g., unrelated chronic conditions) and supplemental benefits.
-            <span class="caveat">VBID Hospice Benefit Component ended 12/31/2024 — no MA plans cover hospice in CY2026. Confirm election rules with the patient's hospice agency.</span>
-          </p>
         </div>
         <div class="benefit-section">
           <div class="section-label sl-transport"><span class="dot"></span>TRANSPORTATION</div>
